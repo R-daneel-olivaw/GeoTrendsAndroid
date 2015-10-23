@@ -1,5 +1,6 @@
 package aks.geotrends.android;
 
+import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -7,6 +8,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -44,10 +46,29 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
+
+		position++;
+
+		Fragment fragment = null;
+		switch (position) {
+		case 1:
+			fragment = KeywordListFragment.newInstance(RegionsEnum.UnitedStates, (position));
+			break;
+		case 2:
+			fragment = KeywordListFragment.newInstance(RegionsEnum.India, (position));
+			break;
+		case 3:
+			fragment = KeywordListFragment.newInstance(RegionsEnum.Japan, (position));
+			break;
+
+		default:
+			fragment = PlaceholderFragment.newInstance(position + 1);
+			break;
+		}
+
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-				.commit();
+		fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
 	}
 
 	public void onSectionAttached(int number) {
@@ -149,10 +170,52 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 		}
 	}
-	
-	public static class KeywordListFragment extends ListFragment
-	{
-		
+
+	public static class KeywordListFragment extends ListFragment {
+		/*
+		 * The fragment argument representing the section number for this
+		 * fragment.
+		 */
+		private static final String ARG_SECTION_NUMBER = "section_number";
+		private RegionsEnum region;
+
+		public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
+			KeywordListFragment fragment = new KeywordListFragment(region);
+
+			Bundle args = new Bundle();
+			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+			fragment.setArguments(args);
+			return fragment;
+		}
+
+		private KeywordListFragment(RegionsEnum region) {
+			this.region = region;
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+			View view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
+			return view;
+		}
+
+		@Override
+		public void onAttach(Activity activity) {
+			super.onAttach(activity);
+			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+
+			Cursor c = getDataCursor();
+
+			KeywordsListAdapter listAdapter = new KeywordsListAdapter(getActivity(), c);
+			setListAdapter(listAdapter);
+		}
+
+		private Cursor getDataCursor() {
+
+			KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getActivity());
+			Cursor c = helper.getKeywords(region);
+
+			return c;
+		}
 	}
 
 }

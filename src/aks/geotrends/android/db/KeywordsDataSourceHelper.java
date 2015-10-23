@@ -18,7 +18,7 @@ public class KeywordsDataSourceHelper {
 	private SQLiteDatabase database;
 	private KeywordsSQLiteHelper dbHelper;
 	private String[] KEYWORDS_ALL_COLUMNS = { KeywordsSQLiteHelper.COLUMN_ID, KeywordsSQLiteHelper.COLUMN_KEYWORD,
-			KeywordsSQLiteHelper.COLUMN_REGION };
+			KeywordsSQLiteHelper.COLUMN_REGION, KeywordsSQLiteHelper.COLUMN_ADDED_DATE };
 	private String[] REGIONS_ALL_COLUMNS = { KeywordsSQLiteHelper.COLUMN_ID, KeywordsSQLiteHelper.COLUMN_REGION_SHORT,
 			KeywordsSQLiteHelper.COLUMN_REGION };
 
@@ -108,5 +108,15 @@ public class KeywordsDataSourceHelper {
 		}
 
 		close();
+	}
+
+	public Cursor getKeywords(RegionsEnum region) {
+		// TODO Auto-generated method stub
+		
+		open();
+		Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
+				KeywordsSQLiteHelper.COLUMN_REGION + " = '" + region.getRegion() + "'", null, null, null, null);
+		
+		return cursor;
 	}
 }
