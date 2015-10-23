@@ -1,22 +1,12 @@
 package aks.geotrends.android;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import aks.geotrends.android.db.Keyword;
-import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.db.KeywordsSQLiteHelper;
+import aks.geotrends.android.fragments.KeywordListFragment;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ListFragment;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -70,7 +60,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 			break;
 
 		default:
-			fragment = PlaceholderFragment.newInstance(position + 1);
+			fragment = KeywordListFragment.newInstance(RegionsEnum.UnitedKingdom, (position));
 			break;
 		}
 
@@ -141,125 +131,4 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		/**
-		 * Returns a new instance of this fragment for the given section number.
-		 */
-		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		public PlaceholderFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-			return rootView;
-		}
-
-		@Override
-		public void onAttach(Activity activity) {
-			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
-		}
-	}
-
-	public static class KeywordListFragment extends ListFragment {
-		/*
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-		private RegionsEnum region;
-		private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
-
-		public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
-			KeywordListFragment fragment = new KeywordListFragment(region);
-
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		private KeywordListFragment(RegionsEnum region) {
-			this.region = region;
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
-			return view;
-		}
-
-		@Override
-		public void onAttach(Activity activity) {
-			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
-
-			Cursor c = getDataCursor();
-			List<Keyword> keywords = getKeywordsFromCursor(c);
-			KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
-
-			setListAdapter(arrayAdapter);
-		}
-
-		private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
-
-			List<Keyword> keywords = new ArrayList<Keyword>();
-			try {
-				while (cursor.moveToNext()) {
-
-					String keyword = cursor
-							.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
-					String region = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_REGION));
-					String addedDate = cursor
-							.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_ADDED_DATE));
-
-					Keyword k = new Keyword();
-					k.setKeyword(keyword);
-					k.setRegionShort(region);
-					k.setAddedDate(addedDate);
-
-					try {
-						Date date = formatter.parse(addedDate);
-						k.setSortingDate(date);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-					
-					keywords.add(k);
-				}
-
-			} finally {
-				cursor.close();
-			}
-
-			return keywords;
-		}
-
-		private Cursor getDataCursor() {
-
-			KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getActivity());
-			Cursor c = helper.getKeywords(region);
-
-			return c;
-		}
-	}
-
 }
