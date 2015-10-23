@@ -3,6 +3,8 @@ package aks.geotrends.android.fragments;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -23,8 +25,7 @@ import android.view.ViewGroup;
 
 public class KeywordListFragment extends ListFragment {
 	/*
-	 * The fragment argument representing the section number for this
-	 * fragment.
+	 * The fragment argument representing the section number for this fragment.
 	 */
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private RegionsEnum region;
@@ -67,8 +68,7 @@ public class KeywordListFragment extends ListFragment {
 		try {
 			while (cursor.moveToNext()) {
 
-				String keyword = cursor
-						.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
+				String keyword = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
 				String region = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_REGION));
 				String addedDate = cursor
 						.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_ADDED_DATE));
@@ -84,13 +84,15 @@ public class KeywordListFragment extends ListFragment {
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				
+
 				keywords.add(k);
 			}
 
 		} finally {
 			cursor.close();
 		}
+		
+		Collections.sort(keywords, new KeywordComparator());
 
 		return keywords;
 	}
@@ -101,5 +103,25 @@ public class KeywordListFragment extends ListFragment {
 		Cursor c = helper.getKeywords(region);
 
 		return c;
+	}
+
+	private class KeywordComparator implements Comparator<Keyword> {
+
+		@Override
+		public int compare(Keyword lhs, Keyword rhs) {
+			// TODO Auto-generated method stub
+			
+			if(lhs.getSortingDate().before(rhs.getSortingDate()))
+			{
+				return -1;
+			}
+			else if(lhs.getSortingDate().equals(rhs.getSortingDate()))
+			{
+				return 0;
+			}
+			
+			return 1;
+		}
+
 	}
 }
