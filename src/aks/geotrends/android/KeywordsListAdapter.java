@@ -1,10 +1,13 @@
 package aks.geotrends.android;
 
+import aks.geotrends.android.db.KeywordsSQLiteHelper;
 import android.content.Context;
 import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.TextView;
 
 public class KeywordsListAdapter extends CursorAdapter {
 
@@ -20,13 +23,23 @@ public class KeywordsListAdapter extends CursorAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		// TODO Auto-generated method stub
-		return null;
+		return LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
 	}
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		// TODO Auto-generated method stub
+		
+	      // Find fields to populate in inflated template
+	      TextView tvKeyword = (TextView) view.findViewById(R.id.tvKeyword);
+	      TextView tvDate = (TextView) view.findViewById(R.id.tvDate);
+	      
+	      // Extract properties from cursor
+	      String keyword = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
+	      String addedDate = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_ADDED_DATE));
+	      
+	      // Set the text of textviews
+	      tvKeyword.setText(keyword);
+	      tvDate.setText(addedDate);
 
 	}
 
