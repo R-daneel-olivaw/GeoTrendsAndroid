@@ -1,6 +1,14 @@
 package aks.geotrends.android;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.db.KeywordsSQLiteHelper;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -178,6 +186,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		 */
 		private static final String ARG_SECTION_NUMBER = "section_number";
 		private RegionsEnum region;
+		private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
 
 		public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
 			KeywordListFragment fragment = new KeywordListFragment(region);
@@ -204,9 +213,44 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
 			Cursor c = getDataCursor();
+			List<Keyword> keywords = getKeywordsFromCursor(c);
+			KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
 
-			KeywordsListAdapter listAdapter = new KeywordsListAdapter(getActivity(), c);
-			setListAdapter(listAdapter);
+			setListAdapter(arrayAdapter);
+		}
+
+		private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
+
+			List<Keyword> keywords = new ArrayList<Keyword>();
+			try {
+				while (cursor.moveToNext()) {
+
+					String keyword = cursor
+							.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
+					String region = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_REGION));
+					String addedDate = cursor
+							.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_ADDED_DATE));
+
+					Keyword k = new Keyword();
+					k.setKeyword(keyword);
+					k.setRegionShort(region);
+					k.setAddedDate(addedDate);
+
+					try {
+						Date date = formatter.parse(addedDate);
+						k.setSortingDate(date);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					
+					keywords.add(k);
+				}
+
+			} finally {
+				cursor.close();
+			}
+
+			return keywords;
 		}
 
 		private Cursor getDataCursor() {

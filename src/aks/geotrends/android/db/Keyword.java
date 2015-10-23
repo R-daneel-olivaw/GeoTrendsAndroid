@@ -1,11 +1,15 @@
 package aks.geotrends.android.db;
 
+import java.util.Date;
+
 public class Keyword {
 
 	private Long id;
 	private String keyword;
 	private String addedDate;
 	private String regionShort;
+
+	private Date sortingDate;
 
 	public String getKeyword() {
 		return keyword;
@@ -37,6 +41,14 @@ public class Keyword {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Date getSortingDate() {
+		return sortingDate;
+	}
+
+	public void setSortingDate(Date sortingDate) {
+		this.sortingDate = sortingDate;
 	}
 
 }
