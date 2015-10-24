@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
@@ -16,6 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class KeywordListArrayAdapter extends ArrayAdapter<Keyword> {
+
+	private static final String LT_1_HOUR = "< 1 hour";
 
 	private List<Keyword> objects;
 
@@ -59,7 +62,17 @@ public class KeywordListArrayAdapter extends ArrayAdapter<Keyword> {
 		DateTime added = new DateTime(keyword.getSortingDate());
 
 		Interval keywordAge = new Interval(added, now);
-		String keywordAgeString = daysHours.print(keywordAge.toPeriod());
+		Period period = keywordAge.toPeriod();
+		
+		String keywordAgeString = null;
+		if(period.toStandardMinutes().getMinutes()<60)
+		{
+			keywordAgeString = LT_1_HOUR;
+		}
+		else
+		{
+			keywordAgeString = daysHours.print(period);
+		}
 
 		return keywordAgeString;
 	}
