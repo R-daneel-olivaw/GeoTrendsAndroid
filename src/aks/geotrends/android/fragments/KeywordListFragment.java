@@ -38,6 +38,7 @@ public class KeywordListFragment extends ListFragment {
 	private View view;
 	private Activity activity;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
+	private boolean firstLoad;
 
 	public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
 		KeywordListFragment fragment = new KeywordListFragment(region);
@@ -50,40 +51,62 @@ public class KeywordListFragment extends ListFragment {
 
 	private KeywordListFragment(RegionsEnum region) {
 		this.region = region;
+		this.firstLoad = true;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
-		
-		populateListView();
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
 		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
 
 			@Override
 			public void onRefresh() {
-				refreshDatabase();
 
-				final Handler handler = new Handler();
-				handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
+				startDelayedRefresh();
 
-						mSwipeRefreshLayout.setRefreshing(false);
-						populateListView();
-						
-					}
-				}, 15000);
 			}
 		});
+		populateListView();
 
 		return view;
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+
+		// if (firstLoad) {
+		// mSwipeRefreshLayout.setRefreshing(true);
+		// startDelayedRefresh();
+		// firstLoad = false;
+		// }
+	}
+
+	private void startDelayedRefresh() {
+		refreshDatabase();
+
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+
+				mSwipeRefreshLayout.setRefreshing(false);
+				populateListView();
+
+			}
+		}, 15000);
+	}
+
 	private void populateListView() {
-		
+
 		Cursor c = getDataCursor();
+
+		if (c.getCount() == 0) {
+			startDelayedRefresh();
+		}
+
 		List<Keyword> keywords = getKeywordsFromCursor(c);
 		KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
 		setListAdapter(arrayAdapter);
@@ -95,12 +118,14 @@ public class KeywordListFragment extends ListFragment {
 
 		this.activity = activity;
 		((MainActivity) this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+
 	}
 
 	private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
 
 		List<Keyword> keywords = new ArrayList<Keyword>();
 		try {
+
 			while (cursor.moveToNext()) {
 
 				String keyword = cursor.getString(cursor.getColumnIndexOrThrow(KeywordsSQLiteHelper.COLUMN_KEYWORD));
