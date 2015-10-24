@@ -76,25 +76,29 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		case 1:
 			mTitle = getString(R.string.title_section1);
 
-			serviceIntent = new Intent(MainActivity.this, GeoTrendsService.class);
-			serviceIntent.putExtra("reg", RegionsEnum.UnitedStates.getCode());
-			startService(serviceIntent);
+			// serviceIntent = new Intent(MainActivity.this,
+			// GeoTrendsService.class);
+			// serviceIntent.putExtra("reg",
+			// RegionsEnum.UnitedStates.getCode());
+			// startService(serviceIntent);
 
 			break;
 		case 2:
 			mTitle = getString(R.string.title_section2);
 
-			serviceIntent = new Intent(MainActivity.this, GeoTrendsService.class);
-			serviceIntent.putExtra("reg", RegionsEnum.India.getCode());
-			startService(serviceIntent);
+			// serviceIntent = new Intent(MainActivity.this,
+			// GeoTrendsService.class);
+			// serviceIntent.putExtra("reg", RegionsEnum.India.getCode());
+			// startService(serviceIntent);
 
 			break;
 		case 3:
 			mTitle = getString(R.string.title_section3);
 
-			serviceIntent = new Intent(MainActivity.this, GeoTrendsService.class);
-			serviceIntent.putExtra("reg", RegionsEnum.Japan.getCode());
-			startService(serviceIntent);
+			// serviceIntent = new Intent(MainActivity.this,
+			// GeoTrendsService.class);
+			// serviceIntent.putExtra("reg", RegionsEnum.Japan.getCode());
+			// startService(serviceIntent);
 
 			break;
 		}

@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import aks.geotrends.android.GeoTrendsService;
 import aks.geotrends.android.KeywordListArrayAdapter;
 import aks.geotrends.android.MainActivity;
 import aks.geotrends.android.R;
@@ -17,8 +18,12 @@ import aks.geotrends.android.db.KeywordsSQLiteHelper;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.Activity;
 import android.app.ListFragment;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +35,9 @@ public class KeywordListFragment extends ListFragment {
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private RegionsEnum region;
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
+	private View view;
+	private Activity activity;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
 
 	public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
 		KeywordListFragment fragment = new KeywordListFragment(region);
@@ -46,20 +54,47 @@ public class KeywordListFragment extends ListFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
+		view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
+		
+		populateListView();
+
+		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
+		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+
+			@Override
+			public void onRefresh() {
+				refreshDatabase();
+
+				final Handler handler = new Handler();
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+
+						mSwipeRefreshLayout.setRefreshing(false);
+						populateListView();
+						
+					}
+				}, 15000);
+			}
+		});
+
 		return view;
+	}
+
+	private void populateListView() {
+		
+		Cursor c = getDataCursor();
+		List<Keyword> keywords = getKeywordsFromCursor(c);
+		KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
+		setListAdapter(arrayAdapter);
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
-		Cursor c = getDataCursor();
-		List<Keyword> keywords = getKeywordsFromCursor(c);
-		KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
-
-		setListAdapter(arrayAdapter);
+		this.activity = activity;
+		((MainActivity) this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 	}
 
 	private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
@@ -91,10 +126,18 @@ public class KeywordListFragment extends ListFragment {
 		} finally {
 			cursor.close();
 		}
-		
+
 		Collections.sort(keywords, new KeywordComparator());
 
 		return keywords;
+	}
+
+	private void refreshDatabase() {
+
+		Intent serviceIntent = new Intent(activity, GeoTrendsService.class);
+		serviceIntent.putExtra("reg", region.getCode());
+		activity.startService(serviceIntent);
+
 	}
 
 	private Cursor getDataCursor() {
@@ -110,16 +153,13 @@ public class KeywordListFragment extends ListFragment {
 		@Override
 		public int compare(Keyword lhs, Keyword rhs) {
 			// TODO Auto-generated method stub
-			
-			if(lhs.getSortingDate().before(rhs.getSortingDate()))
-			{
+
+			if (lhs.getSortingDate().before(rhs.getSortingDate())) {
 				return -1;
-			}
-			else if(lhs.getSortingDate().equals(rhs.getSortingDate()))
-			{
+			} else if (lhs.getSortingDate().equals(rhs.getSortingDate())) {
 				return 0;
 			}
-			
+
 			return 1;
 		}
 
