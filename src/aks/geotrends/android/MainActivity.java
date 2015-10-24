@@ -1,5 +1,7 @@
 package aks.geotrends.android;
 
+import java.util.WeakHashMap;
+
 import aks.geotrends.android.fragments.KeywordListFragment;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.ActionBar;
@@ -9,13 +11,12 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class MainActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+	
+	private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -50,17 +51,17 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		Fragment fragment = null;
 		switch (position) {
 		case 1:
-			fragment = KeywordListFragment.newInstance(RegionsEnum.UnitedStates, (position));
+			fragment = getFragmentForRegion(RegionsEnum.UnitedStates, position);
 			break;
 		case 2:
-			fragment = KeywordListFragment.newInstance(RegionsEnum.India, (position));
+			fragment = getFragmentForRegion(RegionsEnum.India, position);
 			break;
 		case 3:
-			fragment = KeywordListFragment.newInstance(RegionsEnum.Japan, (position));
+			fragment = getFragmentForRegion(RegionsEnum.Japan, position);
 			break;
 
 		default:
-			fragment = KeywordListFragment.newInstance(RegionsEnum.UnitedKingdom, (position));
+			fragment = getFragmentForRegion(RegionsEnum.UnitedKingdom, position);
 			break;
 		}
 
@@ -134,5 +135,17 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private Fragment getFragmentForRegion(RegionsEnum region, int position)
+	{
+		Fragment fragment = fragmentWeakMap.get(region);
+		if(fragment==null)
+		{
+			fragment = KeywordListFragment.newInstance(region, position);
+			fragmentWeakMap.put(region, fragment);
+		}
+		
+		return fragment;
 	}
 }
