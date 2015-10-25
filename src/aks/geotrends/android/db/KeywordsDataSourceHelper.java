@@ -21,6 +21,9 @@ public class KeywordsDataSourceHelper {
 			KeywordsSQLiteHelper.COLUMN_REGION, KeywordsSQLiteHelper.COLUMN_ADDED_DATE };
 	private String[] REGIONS_ALL_COLUMNS = { KeywordsSQLiteHelper.COLUMN_ID, KeywordsSQLiteHelper.COLUMN_REGION_SHORT,
 			KeywordsSQLiteHelper.COLUMN_REGION };
+	
+	public static final String TABLE_TRENDING_KEYWORDS = "trending_keywords";
+	public static final String TABLE_REGIONS = "regions";
 
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
 
@@ -57,23 +60,19 @@ public class KeywordsDataSourceHelper {
 
 		List<JsonKeyword> trendingKeywords = regionalTrending.getTrending();
 
-		open();
 		for (JsonKeyword jsonKeyword : trendingKeywords) {
 
 			String iso8601Date = formatter.format(jsonKeyword.getAddedDate());
 			createKeyword(jsonKeyword.getKeyword(), regionShort, iso8601Date);
 		}
-		close();
 	}
 
 	private void deleteAllKeywordsForRegion(String regionShort) {
 
-		open();
 
 		database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS,
 				KeywordsSQLiteHelper.COLUMN_REGION + " = '" + regionShort + "'", null);
 
-		close();
 	}
 
 	private Keyword cursorToKeyword(Cursor cursor) {
@@ -87,7 +86,6 @@ public class KeywordsDataSourceHelper {
 	public void saveRegion(JsonRegion region) {
 
 		String regionShort = region.getRegion();
-		open();
 
 		Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONS, REGIONS_ALL_COLUMNS,
 				KeywordsSQLiteHelper.COLUMN_REGION_SHORT + " = '" + regionShort + "'", null, null, null, null);
@@ -107,13 +105,11 @@ public class KeywordsDataSourceHelper {
 			database.insert(KeywordsSQLiteHelper.TABLE_REGIONS, null, values);
 		}
 
-		close();
 	}
 
 	public Cursor getKeywords(RegionsEnum region) {
 		// TODO Auto-generated method stub
 		
-		open();
 		Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
 				KeywordsSQLiteHelper.COLUMN_REGION + " = '" + region.getRegion() + "'", null, null, null, null);
 		

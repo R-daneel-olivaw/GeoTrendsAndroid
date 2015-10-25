@@ -2,6 +2,7 @@ package aks.geotrends.android;
 
 import java.util.WeakHashMap;
 
+import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.fragments.KeywordListFragment;
 import aks.geotrends.android.utils.RegionsEnum;
 import android.app.ActionBar;
@@ -9,13 +10,16 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-	
+
 	private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
 	/**
@@ -30,6 +34,8 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 	 */
 	private CharSequence mTitle;
 
+	private KeywordsContentObserver keywordContentObserver;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,6 +47,24 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		String uriString = "content://aks.geotrends.android/" + KeywordsDataSourceHelper.TABLE_TRENDING_KEYWORDS;
+		Uri uri = Uri.parse(uriString);
+
+		keywordContentObserver = new KeywordsContentObserver(new Handler());
+		getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		getContentResolver().unregisterContentObserver(keywordContentObserver);
 	}
 
 	@Override
@@ -136,16 +160,42 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	private Fragment getFragmentForRegion(RegionsEnum region, int position)
-	{
+
+	private Fragment getFragmentForRegion(RegionsEnum region, int position) {
 		Fragment fragment = fragmentWeakMap.get(region);
-		if(fragment==null)
-		{
+		if (fragment == null) {
 			fragment = KeywordListFragment.newInstance(region, position);
 			fragmentWeakMap.put(region, fragment);
 		}
-		
+
 		return fragment;
+	}
+
+
+	private class KeywordsContentObserver extends ContentObserver {
+
+		public KeywordsContentObserver(Handler handler) {
+			super(handler);
+		}
+
+		// Implement the onChange(boolean) method to delegate the change
+		// notification to
+		// the onChange(boolean, Uri) method to ensure correct operation on
+		// older versions
+		// of the framework that did not have the onChange(boolean, Uri) method.
+		@Override
+		public void onChange(boolean selfChange) {
+			onChange(selfChange, null);
+		}
+
+		// Implement the onChange(boolean, Uri) method to take advantage of the
+		// new Uri argument.
+		@Override
+		public void onChange(boolean selfChange, Uri uri) {
+			// Handle change.
+
+			System.out.println("CONTENT CHANGED !!!!!");
+		}
+
 	}
 }

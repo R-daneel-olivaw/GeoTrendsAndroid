@@ -81,9 +81,12 @@ public class GeoTrendsService extends Service {
 	private void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
 
 		KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
+		helper.open();
 		
 		helper.saveRegion(regionalTrending.getRegion());
 		helper.saveOrUpdateKeywords(regionalTrending);
+		
+		helper.close();
 	}
 
 	@Override

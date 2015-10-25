@@ -36,9 +36,10 @@ public class KeywordListFragment extends ListFragment {
 	private RegionsEnum region;
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
 	private View view;
-	private Activity activity;
+	private MainActivity activity;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private boolean firstLoad;
+	private KeywordsDataSourceHelper helper;
 
 	public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
 		KeywordListFragment fragment = new KeywordListFragment(region);
@@ -68,7 +69,6 @@ public class KeywordListFragment extends ListFragment {
 
 			}
 		});
-		populateListView();
 
 		return view;
 	}
@@ -76,12 +76,16 @@ public class KeywordListFragment extends ListFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		// if (firstLoad) {
-		// mSwipeRefreshLayout.setRefreshing(true);
-		// startDelayedRefresh();
-		// firstLoad = false;
-		// }
+		helper = new KeywordsDataSourceHelper(activity);
+		helper.open();
+		populateListView();
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		helper.close();
+		helper = null;
 	}
 
 	private void startDelayedRefresh() {
@@ -116,8 +120,8 @@ public class KeywordListFragment extends ListFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		this.activity = activity;
-		((MainActivity) this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+		this.activity = (MainActivity)activity;
+		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
 	}
 
@@ -167,7 +171,6 @@ public class KeywordListFragment extends ListFragment {
 
 	private Cursor getDataCursor() {
 
-		KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getActivity());
 		Cursor c = helper.getKeywords(region);
 
 		return c;
