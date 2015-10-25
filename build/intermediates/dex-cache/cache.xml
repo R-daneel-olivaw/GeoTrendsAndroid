@@ -2,18 +2,18 @@
 <items version="2" >
 
     <item
-        jar="E:\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\20.0.0\support-annotations-20.0.0.jar"
+        jar="E:\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\22.2.0\support-annotations-22.2.0.jar"
         jumboMode="false"
         revision="23.0.1"
-        sha1="9d9013e9ff35fc3756411e62873c363c70c638fa">
-        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\support-annotations-20.0.0-5b16f73fbc8a40c20d77aefb75b595d0c21c6c23.jar" />
+        sha1="66b42a1f3eb7676070b7ef7f14b603483aecbee1">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\support-annotations-22.2.0-96376f10e7ffeff93884ca587ee327d651d1653c.jar" />
     </item>
     <item
-        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\jars\classes.jar"
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\jars\libs\internal_impl-22.2.0.jar"
         jumboMode="false"
         revision="23.0.1"
-        sha1="8694693636ab36910c8100ce527c258ff3ebece0">
-        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\classes-f99a7955da847c3ef1e999ad50a6da3708d2f278.jar" />
+        sha1="57f2ab85c164ff1676ec64dee787981c046fab79">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\internal_impl-22.2.0-1240cac5ed4ff291a4a83aed41c8ab924e642f0b.jar" />
     </item>
     <item
         jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.5.0\b2ece1bd57ac7b4c315b7505b65ac79cb1da4270\jackson-core-2.5.0.jar"
@@ -21,13 +21,6 @@
         revision="23.0.1"
         sha1="b2ece1bd57ac7b4c315b7505b65ac79cb1da4270">
         <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\jackson-core-2.5.0-98541d49b96233a1b10dd0e30fc49d65acca5d23.jar" />
-    </item>
-    <item
-        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\jars\libs\internal_impl-20.0.0.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="e40b3078e3fbd353c9f44da8df25a8fc0078209d">
-        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\internal_impl-20.0.0-1110db548dd10ca6be2cfbe3b71e62a487a6766b.jar" />
     </item>
     <item
         jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-databind\2.5.0\489b7552dd3322b63f694122d16ce62c21c303b5\jackson-databind-2.5.0.jar"
@@ -44,11 +37,32 @@
         <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\joda-time-2.4-8becb94de6198ad5734fae239edeedc448f602f0.jar" />
     </item>
     <item
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\design\22.2.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="fc63b820d54c8a27a3a614bdd93920e0076581c2">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\classes-7b3d8be7daaac47e5318ad61ec5c0a20247327b5.jar" />
+    </item>
+    <item
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.2.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="73753982da6bde518f3a4c6b372749981d14d1a0">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\classes-3695f2cff976113855138fc3f278dadd677188f5.jar" />
+    </item>
+    <item
         jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-annotations\2.5.0\a2a55a3375bc1cef830ca426d68d2ea22961190e\jackson-annotations-2.5.0.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="a2a55a3375bc1cef830ca426d68d2ea22961190e">
         <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\jackson-annotations-2.5.0-0347f2d6f9e619bd1caaad0ca517a31e3baa18e0.jar" />
+    </item>
+    <item
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="1ee588ff2c4daf7b97c1cbf922a6c7f027285c2f">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\classes-92bb6f2a1b9ecb78efbba9e711d180daf2774d59.jar" />
     </item>
 
 </items>
