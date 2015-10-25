@@ -193,6 +193,8 @@ public class KeywordListFragment extends ListFragment {
 
 	public void databaseContentsChanged() {
 		mSwipeRefreshLayout.setRefreshing(false);
-		populateListView();
+		if (isVisible()) {
+			populateListView();
+		}
 	}
 }
