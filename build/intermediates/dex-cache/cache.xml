@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="E:\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\20.0.0\support-annotations-20.0.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="9d9013e9ff35fc3756411e62873c363c70c638fa">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\support-annotations-20.0.0-5b16f73fbc8a40c20d77aefb75b595d0c21c6c23.jar" />
+    </item>
+    <item
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="8694693636ab36910c8100ce527c258ff3ebece0">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\classes-f99a7955da847c3ef1e999ad50a6da3708d2f278.jar" />
+    </item>
+    <item
+        jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.5.0\b2ece1bd57ac7b4c315b7505b65ac79cb1da4270\jackson-core-2.5.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="b2ece1bd57ac7b4c315b7505b65ac79cb1da4270">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\jackson-core-2.5.0-98541d49b96233a1b10dd0e30fc49d65acca5d23.jar" />
+    </item>
+    <item
+        jar="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\jars\libs\internal_impl-20.0.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="e40b3078e3fbd353c9f44da8df25a8fc0078209d">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\internal_impl-20.0.0-1110db548dd10ca6be2cfbe3b71e62a487a6766b.jar" />
+    </item>
+    <item
+        jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-databind\2.5.0\489b7552dd3322b63f694122d16ce62c21c303b5\jackson-databind-2.5.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="489b7552dd3322b63f694122d16ce62c21c303b5">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\jackson-databind-2.5.0-2823f3881a25ca4dd0682f3b8916b74f7f5d16d1.jar" />
+    </item>
+    <item
+        jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\joda-time\joda-time\2.4\89e9725439adffbbd41c5f5c215c136082b34a7f\joda-time-2.4.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="89e9725439adffbbd41c5f5c215c136082b34a7f">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\joda-time-2.4-8becb94de6198ad5734fae239edeedc448f602f0.jar" />
+    </item>
+    <item
+        jar="C:\Users\a77kumar\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-annotations\2.5.0\a2a55a3375bc1cef830ca426d68d2ea22961190e\jackson-annotations-2.5.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="a2a55a3375bc1cef830ca426d68d2ea22961190e">
+        <dex dex="E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\pre-dexed\debug\jackson-annotations-2.5.0-0347f2d6f9e619bd1caaad0ca517a31e3baa18e0.jar" />
+    </item>
+
+</items>

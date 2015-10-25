@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 16
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "aks.geotrends.android"
+        minSdkVersion 16
+        targetSdkVersion 16
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:20.0.+'
+    compile 'joda-time:joda-time:2.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
+}
