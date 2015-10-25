@@ -15,7 +15,11 @@ ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:2
 		ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:2:11-69
 uses-sdk
 ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:7:5-9:41
-MERGED from [com.android.support:support-v4:20.0.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\AndroidManifest.xml:16:5-42
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:design:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\design\22.2.0\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:appcompat-v7:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.2.0\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:20:5-43
 	android:targetSdkVersion
 		ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:9:9-38
 		INJECTED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml
@@ -30,7 +34,11 @@ ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:1
 		ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:10:22-64
 application
 ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:12:5-31:19
-MERGED from [com.android.support:support-v4:20.0.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\AndroidManifest.xml:17:5-19
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:design:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\design\22.2.0\AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:appcompat-v7:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.2.0\AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:support-v4:22.2.0] E:\StudioProjects\GeoTrendsAndroid\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.0\AndroidManifest.xml:22:5-20
 	android:label
 		ADDED from E:\StudioProjects\GeoTrendsAndroid\app\src\main\AndroidManifest.xml:15:9-41
 	android:allowBackup
