@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">GeoTrends</string>
-    <string name="title_section1">United States 1</string>
+    <string name="title_section1">United States</string>
     <string name="title_section2">India</string>
     <string name="title_section3">Japan</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
