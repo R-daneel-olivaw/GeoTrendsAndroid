@@ -36,6 +36,8 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
 	private KeywordsContentObserver keywordContentObserver;
 
+	private Fragment visibleFragment;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -72,58 +74,40 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
 		position++;
 
-		Fragment fragment = null;
 		switch (position) {
 		case 1:
-			fragment = getFragmentForRegion(RegionsEnum.UnitedStates, position);
+			visibleFragment = getFragmentForRegion(RegionsEnum.UnitedStates, position);
 			break;
 		case 2:
-			fragment = getFragmentForRegion(RegionsEnum.India, position);
+			visibleFragment = getFragmentForRegion(RegionsEnum.India, position);
 			break;
 		case 3:
-			fragment = getFragmentForRegion(RegionsEnum.Japan, position);
+			visibleFragment = getFragmentForRegion(RegionsEnum.Japan, position);
 			break;
 
 		default:
-			fragment = getFragmentForRegion(RegionsEnum.UnitedKingdom, position);
+			visibleFragment = getFragmentForRegion(RegionsEnum.UnitedKingdom, position);
 			break;
 		}
 
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+		fragmentManager.beginTransaction().replace(R.id.container, visibleFragment).commit();
 	}
 
 	public void onSectionAttached(int number) {
 
-		Intent serviceIntent = null;
 		switch (number) {
 		case 1:
 			mTitle = getString(R.string.title_section1);
-
-			// serviceIntent = new Intent(MainActivity.this,
-			// GeoTrendsService.class);
-			// serviceIntent.putExtra("reg",
-			// RegionsEnum.UnitedStates.getCode());
-			// startService(serviceIntent);
 
 			break;
 		case 2:
 			mTitle = getString(R.string.title_section2);
 
-			// serviceIntent = new Intent(MainActivity.this,
-			// GeoTrendsService.class);
-			// serviceIntent.putExtra("reg", RegionsEnum.India.getCode());
-			// startService(serviceIntent);
-
 			break;
 		case 3:
 			mTitle = getString(R.string.title_section3);
-
-			// serviceIntent = new Intent(MainActivity.this,
-			// GeoTrendsService.class);
-			// serviceIntent.putExtra("reg", RegionsEnum.Japan.getCode());
-			// startService(serviceIntent);
 
 			break;
 		}
@@ -195,6 +179,12 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 			// Handle change.
 
 			System.out.println("CONTENT CHANGED !!!!!");
+			
+			if(visibleFragment instanceof KeywordListFragment)
+			{
+				KeywordListFragment klFrag = (KeywordListFragment) visibleFragment;
+				klFrag.databaseContentsChanged();
+			}
 		}
 
 	}

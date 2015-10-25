@@ -38,7 +38,6 @@ public class KeywordListFragment extends ListFragment {
 	private View view;
 	private MainActivity activity;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
-	private boolean firstLoad;
 	private KeywordsDataSourceHelper helper;
 
 	public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
@@ -52,7 +51,6 @@ public class KeywordListFragment extends ListFragment {
 
 	private KeywordListFragment(RegionsEnum region) {
 		this.region = region;
-		this.firstLoad = true;
 	}
 
 	@Override
@@ -80,7 +78,7 @@ public class KeywordListFragment extends ListFragment {
 		helper.open();
 		populateListView();
 	}
-	
+
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -96,11 +94,12 @@ public class KeywordListFragment extends ListFragment {
 			@Override
 			public void run() {
 
-				mSwipeRefreshLayout.setRefreshing(false);
-				populateListView();
+				if (mSwipeRefreshLayout.isRefreshing()) {
+					mSwipeRefreshLayout.setRefreshing(false);
+				}
 
 			}
-		}, 15000);
+		}, 5000);
 	}
 
 	private void populateListView() {
@@ -120,7 +119,7 @@ public class KeywordListFragment extends ListFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		this.activity = (MainActivity)activity;
+		this.activity = (MainActivity) activity;
 		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
 	}
@@ -180,7 +179,6 @@ public class KeywordListFragment extends ListFragment {
 
 		@Override
 		public int compare(Keyword lhs, Keyword rhs) {
-			// TODO Auto-generated method stub
 
 			if (lhs.getSortingDate().before(rhs.getSortingDate())) {
 				return -1;
@@ -191,5 +189,10 @@ public class KeywordListFragment extends ListFragment {
 			return 1;
 		}
 
+	}
+
+	public void databaseContentsChanged() {
+		mSwipeRefreshLayout.setRefreshing(false);
+		populateListView();
 	}
 }

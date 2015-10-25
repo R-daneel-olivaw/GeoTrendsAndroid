@@ -12,6 +12,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
 public class KeywordsDataSourceHelper {
 
@@ -26,8 +27,10 @@ public class KeywordsDataSourceHelper {
 	public static final String TABLE_REGIONS = "regions";
 
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
+	private Context context;
 
 	public KeywordsDataSourceHelper(Context context) {
+		this.context = context;
 		dbHelper = new KeywordsSQLiteHelper(context);
 	}
 
@@ -51,6 +54,7 @@ public class KeywordsDataSourceHelper {
 		cursor.moveToFirst();
 		Keyword newKeyword = cursorToKeyword(cursor);
 		cursor.close();
+		
 		return newKeyword;
 	}
 
@@ -60,11 +64,17 @@ public class KeywordsDataSourceHelper {
 
 		List<JsonKeyword> trendingKeywords = regionalTrending.getTrending();
 
+		// save or update keywords one by one
 		for (JsonKeyword jsonKeyword : trendingKeywords) {
 
 			String iso8601Date = formatter.format(jsonKeyword.getAddedDate());
 			createKeyword(jsonKeyword.getKeyword(), regionShort, iso8601Date);
 		}
+		
+		// notify content observers
+		String uriString = "content://aks.geotrends.android/" + KeywordsDataSourceHelper.TABLE_TRENDING_KEYWORDS;
+		Uri uri = Uri.parse(uriString);
+		context.getContentResolver().notifyChange(uri, null);
 	}
 
 	private void deleteAllKeywordsForRegion(String regionShort) {
