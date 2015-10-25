@@ -9,7 +9,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -55,7 +54,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 	protected void onResume() {
 		super.onResume();
 
-		String uriString = "content://aks.geotrends.android/" + KeywordsDataSourceHelper.TABLE_TRENDING_KEYWORDS;
+		String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
 		Uri uri = Uri.parse(uriString);
 
 		keywordContentObserver = new KeywordsContentObserver(new Handler());

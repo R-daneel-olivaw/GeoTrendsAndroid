@@ -23,8 +23,7 @@ public class KeywordsDataSourceHelper {
 	private String[] REGIONS_ALL_COLUMNS = { KeywordsSQLiteHelper.COLUMN_ID, KeywordsSQLiteHelper.COLUMN_REGION_SHORT,
 			KeywordsSQLiteHelper.COLUMN_REGION };
 	
-	public static final String TABLE_TRENDING_KEYWORDS = "trending_keywords";
-	public static final String TABLE_REGIONS = "regions";
+	public static final String KEYWORDS_TABLE_URI = "content://aks.geotrends.android/" + KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS;
 
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
 	private Context context;
@@ -72,8 +71,7 @@ public class KeywordsDataSourceHelper {
 		}
 		
 		// notify content observers
-		String uriString = "content://aks.geotrends.android/" + KeywordsDataSourceHelper.TABLE_TRENDING_KEYWORDS;
-		Uri uri = Uri.parse(uriString);
+		Uri uri = Uri.parse(KEYWORDS_TABLE_URI);
 		context.getContentResolver().notifyChange(uri, null);
 	}
 
