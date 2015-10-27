@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 	private KeywordsContentObserver keywordContentObserver;
 	private ViewPager viewPager;
 	private DesignDemoPagerAdapter adapter;
-	private Fragment visibleFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -184,12 +184,6 @@ public class MainActivity extends AppCompatActivity {
 		private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
 		private List<RegionsEnum> regionList;
 
-		private Fragment mCurrentFragment;
-
-		public Fragment getCurrentFragment() {
-			return mCurrentFragment;
-		}
-
 		public DesignDemoPagerAdapter(FragmentManager fm) {
 			super(fm);
 			regionList = new ArrayList<>();
@@ -213,14 +207,6 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		public CharSequence getPageTitle(int position) {
 			return regionList.get(position).getPrintName();
-		}
-
-		@Override
-		public void setPrimaryItem(ViewGroup container, int position, Object object) {
-			if (getCurrentFragment() != object) {
-				mCurrentFragment = ((Fragment) object);
-			}
-			super.setPrimaryItem(container, position, object);
 		}
 	}
 
@@ -248,12 +234,13 @@ public class MainActivity extends AppCompatActivity {
 
 			System.out.println("CONTENT CHANGED !!!!!");
 
-			visibleFragment = adapter.getCurrentFragment();
-
-			if(visibleFragment instanceof KeywordListFragment)
-			{
-				KeywordListFragment klFrag = (KeywordListFragment) visibleFragment;
-				klFrag.databaseContentsChanged();
+			final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
+			for (Fragment f:fragmentCollection) {
+				if(f instanceof KeywordListFragment)
+				{
+					KeywordListFragment klFrag = (KeywordListFragment) f;
+					klFrag.databaseContentsChanged();
+				}
 			}
 
 			viewPager.invalidate();
