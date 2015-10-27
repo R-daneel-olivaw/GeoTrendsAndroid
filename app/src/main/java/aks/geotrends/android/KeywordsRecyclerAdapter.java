@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.util.List;
 
@@ -25,6 +26,9 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
 
     public KeywordsRecyclerAdapter(List<Keyword> items) {
         objects = items;
+
+        daysHours = new PeriodFormatterBuilder().appendDays().appendSuffix(" day", " days").appendSeparator(" and ")
+                .appendHours().appendSuffix(" hour", " hours").toFormatter();
     }
 
     @Override

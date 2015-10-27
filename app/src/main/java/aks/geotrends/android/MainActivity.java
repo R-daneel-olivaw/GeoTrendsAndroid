@@ -4,7 +4,6 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -17,10 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +30,7 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.fragments.KeywordListFragment;
+import aks.geotrends.android.fragments.KeywordRecyclerViewFragment;
 import aks.geotrends.android.utils.RegionsEnum;
 
 
@@ -137,45 +133,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class DesignDemoFragment extends Fragment {
-        private static final String TAB_POSITION = "tab_position";
-
-        public DesignDemoFragment() {
-
-        }
-
-        public static DesignDemoFragment newInstance(int tabPosition) {
-            DesignDemoFragment fragment = new DesignDemoFragment();
-            Bundle args = new Bundle();
-            args.putInt(TAB_POSITION, tabPosition);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            Bundle args = getArguments();
-            int tabPosition = args.getInt(TAB_POSITION);
-
-            ArrayList<String> items = new ArrayList<String>();
-            for (int i = 0; i < 50; i++) {
-                items.add("Tab #" + tabPosition + " item #" + i);
-            }
-
-            View v = inflater.inflate(R.layout.fragment_list_view, container, false);
-            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recyclerview);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(new KeywordsRecyclerAdapter(items));
-
-            return v;
-        }
-    }
-
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
         Fragment fragment = fragmentWeakMap.get(region);
         if (fragment == null) {
-            fragment = KeywordListFragment.newInstance(region, position);
+            fragment = KeywordRecyclerViewFragment.newInstance(region, position);
             fragmentWeakMap.put(region, fragment);
         }
 
@@ -185,9 +146,9 @@ public class MainActivity extends AppCompatActivity {
     private void refreshDatabase() {
 
         final Fragment fragment = adapter.getCurrentFragment();
-        if(fragment instanceof  KeywordListFragment)
+        if(fragment instanceof KeywordRecyclerViewFragment)
         {
-            KeywordListFragment klFragment = (KeywordListFragment) fragment;
+            KeywordRecyclerViewFragment klFragment = (KeywordRecyclerViewFragment) fragment;
             klFragment.startDelayedRefresh();
         }
 
@@ -264,8 +225,8 @@ public class MainActivity extends AppCompatActivity {
 
             final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
             for (Fragment f : fragmentCollection) {
-                if (f instanceof KeywordListFragment) {
-                    KeywordListFragment klFrag = (KeywordListFragment) f;
+                if (f instanceof KeywordRecyclerViewFragment) {
+                    KeywordRecyclerViewFragment klFrag = (KeywordRecyclerViewFragment) f;
                     klFrag.databaseContentsChanged();
                 }
             }
