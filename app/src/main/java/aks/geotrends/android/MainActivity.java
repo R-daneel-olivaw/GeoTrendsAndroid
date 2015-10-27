@@ -1,5 +1,6 @@
 package aks.geotrends.android;
 
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,212 +41,239 @@ import aks.geotrends.android.utils.RegionsEnum;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
+    private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
-	private DrawerLayout mDrawerLayout;
-	private KeywordsContentObserver keywordContentObserver;
-	private ViewPager viewPager;
-	private DesignDemoPagerAdapter adapter;
+    private DrawerLayout mDrawerLayout;
+    private KeywordsContentObserver keywordContentObserver;
+    private ViewPager viewPager;
+    private DesignDemoPagerAdapter adapter;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-		actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-		NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-		navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-			@Override
-			public boolean onNavigationItemSelected(MenuItem menuItem) {
-				menuItem.setChecked(true);
-				mDrawerLayout.closeDrawers();
-				Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
-				return true;
-			}
-		});
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                mDrawerLayout.closeDrawers();
+                Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
 
-		FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Snackbar.make(findViewById(R.id.coordinator), "I'm a Snackbar", Snackbar.LENGTH_LONG).setAction("Action", new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
-					}
-				}).show();
-			}
-		});
-	}
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+                refreshDatabase();
 
-		adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
-		viewPager = (ViewPager)findViewById(R.id.viewpager);
-		viewPager.setAdapter(adapter);
-		TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
-		tabLayout.setupWithViewPager(viewPager);
+                Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_LONG).setAction("Close", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+//						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
+                    }
+                }).show();
+            }
+        });
+    }
 
-		String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
-		Uri uri = Uri.parse(uriString);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-		keywordContentObserver = new KeywordsContentObserver(new Handler());
-		getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
-	}
+        adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(adapter);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        tabLayout.setupWithViewPager(viewPager);
 
-	@Override
-	protected void onPause() {
-		super.onPause();
+        String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
+        Uri uri = Uri.parse(uriString);
 
-		getContentResolver().unregisterContentObserver(keywordContentObserver);
-	}
+        keywordContentObserver = new KeywordsContentObserver(new Handler());
+        getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return true;
-	}
+    @Override
+    protected void onPause() {
+        super.onPause();
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+        getContentResolver().unregisterContentObserver(keywordContentObserver);
+    }
 
-		switch (id) {
-			case android.R.id.home:
-				mDrawerLayout.openDrawer(GravityCompat.START);
-				return true;
-			case R.id.action_settings:
-				return true;
-		}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-	public static class DesignDemoFragment extends Fragment {
-		private static final String TAB_POSITION = "tab_position";
+        switch (id) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            case R.id.action_settings:
+                return true;
+        }
 
-		public DesignDemoFragment() {
+        return super.onOptionsItemSelected(item);
+    }
 
-		}
+    public static class DesignDemoFragment extends Fragment {
+        private static final String TAB_POSITION = "tab_position";
 
-		public static DesignDemoFragment newInstance(int tabPosition) {
-			DesignDemoFragment fragment = new DesignDemoFragment();
-			Bundle args = new Bundle();
-			args.putInt(TAB_POSITION, tabPosition);
-			fragment.setArguments(args);
-			return fragment;
-		}
+        public DesignDemoFragment() {
 
-		@Nullable
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			Bundle args = getArguments();
-			int tabPosition = args.getInt(TAB_POSITION);
+        }
 
-			ArrayList<String> items = new ArrayList<String>();
-			for (int i = 0; i < 50; i++) {
-				items.add("Tab #" + tabPosition + " item #" + i);
-			}
+        public static DesignDemoFragment newInstance(int tabPosition) {
+            DesignDemoFragment fragment = new DesignDemoFragment();
+            Bundle args = new Bundle();
+            args.putInt(TAB_POSITION, tabPosition);
+            fragment.setArguments(args);
+            return fragment;
+        }
 
-			View v =  inflater.inflate(R.layout.fragment_list_view, container, false);
-			RecyclerView recyclerView = (RecyclerView)v.findViewById(R.id.recyclerview);
-			recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-			recyclerView.setAdapter(new DesignDemoRecyclerAdapter(items));
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            Bundle args = getArguments();
+            int tabPosition = args.getInt(TAB_POSITION);
 
-			return v;
-		}
-	}
+            ArrayList<String> items = new ArrayList<String>();
+            for (int i = 0; i < 50; i++) {
+                items.add("Tab #" + tabPosition + " item #" + i);
+            }
 
-	private Fragment getFragmentForRegion(RegionsEnum region, int position) {
-		Fragment fragment = fragmentWeakMap.get(region);
-		if (fragment == null) {
-			fragment = KeywordListFragment.newInstance(region, position);
-			fragmentWeakMap.put(region, fragment);
-		}
+            View v = inflater.inflate(R.layout.fragment_list_view, container, false);
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recyclerview);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(new DesignDemoRecyclerAdapter(items));
 
-		return fragment;
-	}
+            return v;
+        }
+    }
 
-	private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
+    private Fragment getFragmentForRegion(RegionsEnum region, int position) {
+        Fragment fragment = fragmentWeakMap.get(region);
+        if (fragment == null) {
+            fragment = KeywordListFragment.newInstance(region, position);
+            fragmentWeakMap.put(region, fragment);
+        }
 
-		private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
-		private List<RegionsEnum> regionList;
+        return fragment;
+    }
 
-		public DesignDemoPagerAdapter(FragmentManager fm) {
-			super(fm);
-			regionList = new ArrayList<>();
-			regionList.addAll(Arrays.asList(regions));
-		}
+    private void refreshDatabase() {
 
-		@Override
-		public Fragment getItem(int position) {
+        final Fragment fragment = adapter.getCurrentFragment();
+        if(fragment instanceof  KeywordListFragment)
+        {
+            KeywordListFragment klFragment = (KeywordListFragment) fragment;
+            klFragment.startDelayedRefresh();
+        }
 
-			final RegionsEnum reg = regionList.get(position);
-			final Fragment fragment = getFragmentForRegion(reg, position);
+    }
 
-			return fragment;
-		}
+    private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
 
-		@Override
-		public int getCount() {
-			return regionList.size();
-		}
+        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
+        private List<RegionsEnum> regionList;
 
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return regionList.get(position).getPrintName();
-		}
-	}
+        private Fragment mCurrentFragment;
 
-	private class KeywordsContentObserver extends ContentObserver {
+        public Fragment getCurrentFragment() {
+            return mCurrentFragment;
+        }
 
-		public KeywordsContentObserver(Handler handler) {
-			super(handler);
-		}
+        public DesignDemoPagerAdapter(FragmentManager fm) {
+            super(fm);
+            regionList = new ArrayList<>();
+            regionList.addAll(Arrays.asList(regions));
+        }
 
-		// Implement the onChange(boolean) method to delegate the change
-		// notification to
-		// the onChange(boolean, Uri) method to ensure correct operation on
-		// older versions
-		// of the framework that did not have the onChange(boolean, Uri) method.
-		@Override
-		public void onChange(boolean selfChange) {
-			onChange(selfChange, null);
-		}
+        @Override
+        public Fragment getItem(int position) {
 
-		// Implement the onChange(boolean, Uri) method to take advantage of the
-		// new Uri argument.
-		@Override
-		public void onChange(boolean selfChange, Uri uri) {
-			// Handle change.
+            final RegionsEnum reg = regionList.get(position);
+            final Fragment fragment = getFragmentForRegion(reg, position);
 
-			System.out.println("CONTENT CHANGED !!!!!");
+            return fragment;
+        }
 
-			final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
-			for (Fragment f:fragmentCollection) {
-				if(f instanceof KeywordListFragment)
-				{
-					KeywordListFragment klFrag = (KeywordListFragment) f;
-					klFrag.databaseContentsChanged();
-				}
-			}
+        @Override
+        public int getCount() {
+            return regionList.size();
+        }
 
-			viewPager.invalidate();
-		}
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return regionList.get(position).getPrintName();
+        }
 
-	}
+        @Override
+        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            if (getCurrentFragment() != object) {
+                mCurrentFragment = ((Fragment) object);
+            }
+            super.setPrimaryItem(container, position, object);
+        }
+    }
+
+    private class KeywordsContentObserver extends ContentObserver {
+
+        public KeywordsContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        // Implement the onChange(boolean) method to delegate the change
+        // notification to
+        // the onChange(boolean, Uri) method to ensure correct operation on
+        // older versions
+        // of the framework that did not have the onChange(boolean, Uri) method.
+        @Override
+        public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        // Implement the onChange(boolean, Uri) method to take advantage of the
+        // new Uri argument.
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            // Handle change.
+
+            System.out.println("CONTENT CHANGED !!!!!");
+
+            final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
+            for (Fragment f : fragmentCollection) {
+                if (f instanceof KeywordListFragment) {
+                    KeywordListFragment klFrag = (KeywordListFragment) f;
+                    klFrag.databaseContentsChanged();
+                }
+            }
+
+            viewPager.invalidate();
+        }
+
+    }
 
 }

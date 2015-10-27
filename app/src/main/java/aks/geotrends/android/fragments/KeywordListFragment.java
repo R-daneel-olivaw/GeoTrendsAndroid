@@ -91,7 +91,7 @@ public class KeywordListFragment extends ListFragment {
         helper = null;
     }
 
-    private void startDelayedRefresh() {
+    public void startDelayedRefresh() {
         refreshDatabase();
 
         final Handler handler = new Handler();
