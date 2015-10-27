@@ -1,135 +1,85 @@
 package aks.geotrends.android;
 
-import java.util.WeakHashMap;
-
-import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.fragments.KeywordListFragment;
-import aks.geotrends.android.utils.RegionsEnum;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
-public class MainActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+import java.util.ArrayList;
 
-	private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
-	/**
-	 * Fragment managing the behaviors, interactions and presentation of the
-	 * navigation drawer.
-	 */
-	private NavigationDrawerFragment mNavigationDrawerFragment;
+public class MainActivity extends AppCompatActivity {
 
-	/**
-	 * Used to store the last screen title. For use in
-	 * {@link #restoreActionBar()}.
-	 */
-	private CharSequence mTitle;
-
-	private KeywordsContentObserver keywordContentObserver;
-
-	private Fragment visibleFragment;
+	private DrawerLayout mDrawerLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
-				.findFragmentById(R.id.navigation_drawer);
-		mTitle = getTitle();
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		// Set up the drawer.
-		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-	}
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+		NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+		navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(MenuItem menuItem) {
+				menuItem.setChecked(true);
+				mDrawerLayout.closeDrawers();
+				Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
+				return true;
+			}
+		});
 
-		String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
-		Uri uri = Uri.parse(uriString);
+		FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.fab);
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Snackbar.make(findViewById(R.id.coordinator), "I'm a Snackbar", Snackbar.LENGTH_LONG).setAction("Action", new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
+					}
+				}).show();
+			}
+		});
 
-		keywordContentObserver = new KeywordsContentObserver(new Handler());
-		getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-
-		getContentResolver().unregisterContentObserver(keywordContentObserver);
-	}
-
-	@Override
-	public void onNavigationDrawerItemSelected(int position) {
-
-		position++;
-
-		switch (position) {
-		case 1:
-			visibleFragment = getFragmentForRegion(RegionsEnum.UnitedStates, position);
-			break;
-		case 2:
-			visibleFragment = getFragmentForRegion(RegionsEnum.India, position);
-			break;
-		case 3:
-			visibleFragment = getFragmentForRegion(RegionsEnum.Japan, position);
-			break;
-
-		default:
-			visibleFragment = getFragmentForRegion(RegionsEnum.UnitedKingdom, position);
-			break;
-		}
-
-		// update the main content by replacing fragments
-		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.container, visibleFragment).commit();
-	}
-
-	public void onSectionAttached(int number) {
-
-		switch (number) {
-		case 1:
-			mTitle = getString(R.string.title_section1);
-
-			break;
-		case 2:
-			mTitle = getString(R.string.title_section2);
-
-			break;
-		case 3:
-			mTitle = getString(R.string.title_section3);
-
-			break;
-		}
-	}
-
-	public void restoreActionBar() {
-		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(mTitle);
+		DesignDemoPagerAdapter adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
+		ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
+		viewPager.setAdapter(adapter);
+		TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
+		tabLayout.setupWithViewPager(viewPager);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (!mNavigationDrawerFragment.isDrawerOpen()) {
-			// Only show items in the action bar relevant to this screen
-			// if the drawer is not showing. Otherwise, let the drawer
-			// decide what to show in the action bar.
-			getMenuInflater().inflate(R.menu.main, menu);
-			restoreActionBar();
-			return true;
-		}
-		return super.onCreateOptionsMenu(menu);
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
 	}
 
 	@Override
@@ -138,53 +88,73 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+
+		switch (id) {
+			case android.R.id.home:
+				mDrawerLayout.openDrawer(GravityCompat.START);
+				return true;
+			case R.id.action_settings:
+				return true;
 		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
-	private Fragment getFragmentForRegion(RegionsEnum region, int position) {
-		Fragment fragment = fragmentWeakMap.get(region);
-		if (fragment == null) {
-			fragment = KeywordListFragment.newInstance(region, position);
-			fragmentWeakMap.put(region, fragment);
+	public static class DesignDemoFragment extends Fragment {
+		private static final String TAB_POSITION = "tab_position";
+
+		public DesignDemoFragment() {
+
 		}
 
-		return fragment;
-	}
-
-
-	private class KeywordsContentObserver extends ContentObserver {
-
-		public KeywordsContentObserver(Handler handler) {
-			super(handler);
+		public static DesignDemoFragment newInstance(int tabPosition) {
+			DesignDemoFragment fragment = new DesignDemoFragment();
+			Bundle args = new Bundle();
+			args.putInt(TAB_POSITION, tabPosition);
+			fragment.setArguments(args);
+			return fragment;
 		}
 
-		// Implement the onChange(boolean) method to delegate the change
-		// notification to
-		// the onChange(boolean, Uri) method to ensure correct operation on
-		// older versions
-		// of the framework that did not have the onChange(boolean, Uri) method.
+		@Nullable
 		@Override
-		public void onChange(boolean selfChange) {
-			onChange(selfChange, null);
-		}
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+			Bundle args = getArguments();
+			int tabPosition = args.getInt(TAB_POSITION);
 
-		// Implement the onChange(boolean, Uri) method to take advantage of the
-		// new Uri argument.
-		@Override
-		public void onChange(boolean selfChange, Uri uri) {
-			// Handle change.
-
-			System.out.println("CONTENT CHANGED !!!!!");
-			
-			if(visibleFragment instanceof KeywordListFragment)
-			{
-				KeywordListFragment klFrag = (KeywordListFragment) visibleFragment;
-				klFrag.databaseContentsChanged();
+			ArrayList<String> items = new ArrayList<String>();
+			for (int i = 0; i < 50; i++) {
+				items.add("Tab #" + tabPosition + " item #" + i);
 			}
+
+			View v =  inflater.inflate(R.layout.fragment_list_view, container, false);
+			RecyclerView recyclerView = (RecyclerView)v.findViewById(R.id.recyclerview);
+			recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+			recyclerView.setAdapter(new DesignDemoRecyclerAdapter(items));
+
+			return v;
+		}
+	}
+
+	static class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
+
+		public DesignDemoPagerAdapter(FragmentManager fm) {
+			super(fm);
 		}
 
+		@Override
+		public Fragment getItem(int position) {
+			return DesignDemoFragment.newInstance(position);
+		}
+
+		@Override
+		public int getCount() {
+			return 3;
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return "Tab " + position;
+		}
 	}
+
 }

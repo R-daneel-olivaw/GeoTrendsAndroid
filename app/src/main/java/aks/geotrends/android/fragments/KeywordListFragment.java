@@ -119,8 +119,8 @@ public class KeywordListFragment extends ListFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		this.activity = (MainActivity) activity;
-		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+//		this.activity = (MainActivity) activity;
+//		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
 	}
 
