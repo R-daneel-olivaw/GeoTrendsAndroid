@@ -1,5 +1,16 @@
 package aks.geotrends.android.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,17 +27,8 @@ import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.KeywordsSQLiteHelper;
 import aks.geotrends.android.utils.RegionsEnum;
-import android.app.Activity;
-import android.app.ListFragment;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
+import android.support.v4.app.ListFragment;
 
 public class KeywordListFragment extends ListFragment {
 	/*
@@ -51,6 +53,9 @@ public class KeywordListFragment extends ListFragment {
 
 	private KeywordListFragment(RegionsEnum region) {
 		this.region = region;
+	}
+
+	private KeywordListFragment() {
 	}
 
 	@Override
@@ -119,7 +124,7 @@ public class KeywordListFragment extends ListFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-//		this.activity = (MainActivity) activity;
+		this.activity = (MainActivity) activity;
 //		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
 	}

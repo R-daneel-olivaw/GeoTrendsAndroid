@@ -1,6 +1,9 @@
 package aks.geotrends.android;
 
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -25,11 +28,18 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.fragments.KeywordListFragment;
+import aks.geotrends.android.utils.RegionsEnum;
 
 
 public class MainActivity extends AppCompatActivity {
 
 	private DrawerLayout mDrawerLayout;
+	private KeywordsContentObserver keywordContentObserver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +77,30 @@ public class MainActivity extends AppCompatActivity {
 				}).show();
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 
 		DesignDemoPagerAdapter adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
 		ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
 		viewPager.setAdapter(adapter);
 		TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
 		tabLayout.setupWithViewPager(viewPager);
+
+		String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
+		Uri uri = Uri.parse(uriString);
+
+		keywordContentObserver = new KeywordsContentObserver(new Handler());
+		getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		getContentResolver().unregisterContentObserver(keywordContentObserver);
 	}
 
 	@Override
@@ -137,24 +165,64 @@ public class MainActivity extends AppCompatActivity {
 
 	static class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
 
+		private static final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
+		private List<RegionsEnum> regionList;
+
 		public DesignDemoPagerAdapter(FragmentManager fm) {
 			super(fm);
+			regionList = new ArrayList<>();
+			regionList.addAll(Arrays.asList(regions));
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			return DesignDemoFragment.newInstance(position);
+			return KeywordListFragment.newInstance(regionList.get(position), position);
 		}
 
 		@Override
 		public int getCount() {
-			return 3;
+			return regionList.size();
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
 			return "Tab " + position;
 		}
+	}
+
+	private class KeywordsContentObserver extends ContentObserver {
+
+		private Fragment visibleFragment;
+
+		public KeywordsContentObserver(Handler handler) {
+			super(handler);
+		}
+
+		// Implement the onChange(boolean) method to delegate the change
+		// notification to
+		// the onChange(boolean, Uri) method to ensure correct operation on
+		// older versions
+		// of the framework that did not have the onChange(boolean, Uri) method.
+		@Override
+		public void onChange(boolean selfChange) {
+			onChange(selfChange, null);
+		}
+
+		// Implement the onChange(boolean, Uri) method to take advantage of the
+		// new Uri argument.
+		@Override
+		public void onChange(boolean selfChange, Uri uri) {
+			// Handle change.
+
+			System.out.println("CONTENT CHANGED !!!!!");
+
+			if(visibleFragment instanceof KeywordListFragment)
+			{
+				KeywordListFragment klFrag = (KeywordListFragment) visibleFragment;
+				klFrag.databaseContentsChanged();
+			}
+		}
+
 	}
 
 }
