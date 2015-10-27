@@ -39,7 +39,6 @@ public class KeywordListFragment extends ListFragment {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
     private View view;
     private MainActivity activity;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
     private KeywordsDataSourceHelper helper;
 
     public static KeywordListFragment newInstance(RegionsEnum region, int sectionNumber) {
@@ -62,17 +61,6 @@ public class KeywordListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.keyword_list_fragment, container, false);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-
-                startDelayedRefresh();
-
-            }
-        });
-
         return view;
     }
 
@@ -94,17 +82,17 @@ public class KeywordListFragment extends ListFragment {
     public void startDelayedRefresh() {
         refreshDatabase();
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                if (mSwipeRefreshLayout.isRefreshing()) {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
-
-            }
-        }, 5000);
+//        final Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                if (mSwipeRefreshLayout.isRefreshing()) {
+//                    mSwipeRefreshLayout.setRefreshing(false);
+//                }
+//
+//            }
+//        }, 5000);
     }
 
     private void populateListView() {
@@ -199,7 +187,6 @@ public class KeywordListFragment extends ListFragment {
     }
 
     public void databaseContentsChanged() {
-        mSwipeRefreshLayout.setRefreshing(false);
         if(null!=helper) {
             populateListView();
         }
