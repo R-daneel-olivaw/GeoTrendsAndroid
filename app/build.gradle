@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "aks.geotrends.android"
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 22
 
     }
 
@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.+'
+    compile 'com.android.support:support-v4:22.2.0'
     compile 'joda-time:joda-time:2.4'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
     compile 'com.android.support:design:22.2.0'
