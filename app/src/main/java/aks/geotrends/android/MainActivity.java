@@ -1,6 +1,5 @@
 package aks.geotrends.android;
 
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             View v = inflater.inflate(R.layout.fragment_list_view, container, false);
             RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recyclerview);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(new DesignDemoRecyclerAdapter(items));
+            recyclerView.setAdapter(new KeywordsRecyclerAdapter(items));
 
             return v;
         }
