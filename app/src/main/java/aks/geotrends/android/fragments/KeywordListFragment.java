@@ -118,6 +118,8 @@ public class KeywordListFragment extends ListFragment {
 		List<Keyword> keywords = getKeywordsFromCursor(c);
 		KeywordListArrayAdapter arrayAdapter = new KeywordListArrayAdapter(getActivity(), keywords);
 		setListAdapter(arrayAdapter);
+
+		getListView().invalidate();
 	}
 
 	@Override

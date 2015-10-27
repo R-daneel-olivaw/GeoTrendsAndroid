@@ -30,6 +30,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.fragments.KeywordListFragment;
@@ -38,8 +39,13 @@ import aks.geotrends.android.utils.RegionsEnum;
 
 public class MainActivity extends AppCompatActivity {
 
+	private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
+
 	private DrawerLayout mDrawerLayout;
 	private KeywordsContentObserver keywordContentObserver;
+	private ViewPager viewPager;
+	private DesignDemoPagerAdapter adapter;
+	private Fragment visibleFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		DesignDemoPagerAdapter adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
-		ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
+		adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
+		viewPager = (ViewPager)findViewById(R.id.viewpager);
 		viewPager.setAdapter(adapter);
 		TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
 		tabLayout.setupWithViewPager(viewPager);
@@ -163,10 +169,26 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	static class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
+	private Fragment getFragmentForRegion(RegionsEnum region, int position) {
+		Fragment fragment = fragmentWeakMap.get(region);
+		if (fragment == null) {
+			fragment = KeywordListFragment.newInstance(region, position);
+			fragmentWeakMap.put(region, fragment);
+		}
 
-		private static final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
+		return fragment;
+	}
+
+	private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
+
+		private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
 		private List<RegionsEnum> regionList;
+
+		private Fragment mCurrentFragment;
+
+		public Fragment getCurrentFragment() {
+			return mCurrentFragment;
+		}
 
 		public DesignDemoPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -176,7 +198,11 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			return KeywordListFragment.newInstance(regionList.get(position), position);
+
+			final RegionsEnum reg = regionList.get(position);
+			final Fragment fragment = getFragmentForRegion(reg, position);
+
+			return fragment;
 		}
 
 		@Override
@@ -186,13 +212,19 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return "Tab " + position;
+			return regionList.get(position).getPrintName();
+		}
+
+		@Override
+		public void setPrimaryItem(ViewGroup container, int position, Object object) {
+			if (getCurrentFragment() != object) {
+				mCurrentFragment = ((Fragment) object);
+			}
+			super.setPrimaryItem(container, position, object);
 		}
 	}
 
 	private class KeywordsContentObserver extends ContentObserver {
-
-		private Fragment visibleFragment;
 
 		public KeywordsContentObserver(Handler handler) {
 			super(handler);
@@ -216,11 +248,15 @@ public class MainActivity extends AppCompatActivity {
 
 			System.out.println("CONTENT CHANGED !!!!!");
 
+			visibleFragment = adapter.getCurrentFragment();
+
 			if(visibleFragment instanceof KeywordListFragment)
 			{
 				KeywordListFragment klFrag = (KeywordListFragment) visibleFragment;
 				klFrag.databaseContentsChanged();
 			}
+
+			viewPager.invalidate();
 		}
 
 	}
