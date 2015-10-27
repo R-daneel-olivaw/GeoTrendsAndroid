@@ -146,8 +146,7 @@ public class MainActivity extends AppCompatActivity {
     private void refreshDatabase() {
 
         final Fragment fragment = adapter.getCurrentFragment();
-        if(fragment instanceof KeywordRecyclerViewFragment)
-        {
+        if (fragment instanceof KeywordRecyclerViewFragment) {
             KeywordRecyclerViewFragment klFragment = (KeywordRecyclerViewFragment) fragment;
             klFragment.startDelayedRefresh();
         }
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
 
-        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan};
+        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine};
         private List<RegionsEnum> regionList;
 
         private Fragment mCurrentFragment;

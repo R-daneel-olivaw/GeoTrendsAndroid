@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 import aks.geotrends.android.GeoTrendsService;
-import aks.geotrends.android.KeywordListArrayAdapter;
 import aks.geotrends.android.KeywordsRecyclerAdapter;
 import aks.geotrends.android.MainActivity;
 import aks.geotrends.android.R;
