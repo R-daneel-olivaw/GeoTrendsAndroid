@@ -1,5 +1,6 @@
 package aks.geotrends.android;
 
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -128,9 +129,16 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action_settings:
                 return true;
+            case R.id.action_search:
+                startSelectRegionsActivity();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startSelectRegionsActivity() {
+        startActivity(new Intent(this, SelectRegionsActivity.class));
     }
 
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
@@ -155,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
 
-        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine};
+        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine, RegionsEnum.Brazil, RegionsEnum.Egypt, RegionsEnum.Canada};
         private List<RegionsEnum> regionList;
 
         private Fragment mCurrentFragment;
