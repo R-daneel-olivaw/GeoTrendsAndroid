@@ -131,9 +131,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action_settings:
                 return true;
-            case R.id.action_search:
+            case R.id.action_select_regions:
                 startSelectRegionsActivity();
                 return true;
+            case R.id.action_reorder:
+                return  true;
         }
 
         return super.onOptionsItemSelected(item);

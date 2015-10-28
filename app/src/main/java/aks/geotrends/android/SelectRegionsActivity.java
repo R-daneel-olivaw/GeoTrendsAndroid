@@ -31,6 +31,7 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
     private RecyclerView regionsRecyclerView;
     private RegionsAdapter adapter;
     private List<String> currentSelected;
+    private List<RegionModel> regModels;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +64,8 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         final Intent intent = getIntent();
         currentSelected = intent.getStringArrayListExtra("currentSelected");
 
-        List<RegionModel> regionModels = getRegionModels();
-        adapter = new RegionsAdapter(this, regionModels);
+        regModels = getRegionModels();
+        adapter = new RegionsAdapter(this, regModels);
         regionsRecyclerView.setAdapter(adapter);
     }
 
@@ -96,8 +97,27 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
+    public boolean onQueryTextChange(String query) {
+        final List<RegionModel> filteredModelList = filter(regModels, query);
+        adapter.animateTo(filteredModelList);
+        regionsRecyclerView.scrollToPosition(0);
+        return true;
+    }
+
+    private List<RegionModel> filter(List<RegionModel> models, String query) {
+        query = query.toLowerCase();
+
+        final List<RegionModel> filteredModelList = new ArrayList<>();
+        for (RegionModel model : models) {
+            final String printName = model.getRegionObject().getPrintName().toLowerCase();
+            final String regionCode = model.getRegionObject().getRegion().toLowerCase();
+            if (printName.contains(query)) {
+                filteredModelList.add(model);
+            } else if (regionCode.contains(query)) {
+                filteredModelList.add(model);
+            }
+        }
+        return filteredModelList;
     }
 
     private class RegionModel {
@@ -215,6 +235,56 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
             return selectedRegions;
         }
-    }
 
+        public RegionModel removeItem(int position) {
+            final RegionModel model = mModels.remove(position);
+            notifyItemRemoved(position);
+            return model;
+        }
+
+        public void addItem(int position, RegionModel model) {
+            mModels.add(position, model);
+            notifyItemInserted(position);
+        }
+
+        public void moveItem(int fromPosition, int toPosition) {
+            final RegionModel model = mModels.remove(fromPosition);
+            mModels.add(toPosition, model);
+            notifyItemMoved(fromPosition, toPosition);
+        }
+
+        public void animateTo(List<RegionModel> models) {
+            applyAndAnimateRemovals(models);
+            applyAndAnimateAdditions(models);
+            applyAndAnimateMovedItems(models);
+        }
+
+        private void applyAndAnimateRemovals(List<RegionModel> newModels) {
+            for (int i = mModels.size() - 1; i >= 0; i--) {
+                final RegionModel model = mModels.get(i);
+                if (!newModels.contains(model)) {
+                    removeItem(i);
+                }
+            }
+        }
+
+        private void applyAndAnimateAdditions(List<RegionModel> newModels) {
+            for (int i = 0, count = newModels.size(); i < count; i++) {
+                final RegionModel model = newModels.get(i);
+                if (!mModels.contains(model)) {
+                    addItem(i, model);
+                }
+            }
+        }
+
+        private void applyAndAnimateMovedItems(List<RegionModel> newModels) {
+            for (int toPosition = newModels.size() - 1; toPosition >= 0; toPosition--) {
+                final RegionModel model = newModels.get(toPosition);
+                final int fromPosition = mModels.indexOf(model);
+                if (fromPosition >= 0 && fromPosition != toPosition) {
+                    moveItem(fromPosition, toPosition);
+                }
+            }
+        }
+    }
 }
