@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_select_regions"
+        android:icon="@drawable/ic_action_edit_regions"
+        android:orderInCategory="100"
+        android:title="@string/select"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_reorder"
+        android:icon="@drawable/ic_action_reorder_regions"
+        android:orderInCategory="100"
+        android:title="@string/reorder"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>
