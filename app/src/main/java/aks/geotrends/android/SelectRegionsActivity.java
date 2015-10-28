@@ -1,6 +1,8 @@
 package aks.geotrends.android;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,7 +23,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import aks.geotrends.android.utils.RegionsEnum;
@@ -29,6 +30,7 @@ import aks.geotrends.android.utils.RegionsEnum;
 public class SelectRegionsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private RecyclerView regionsRecyclerView;
+    private RegionsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,23 +44,27 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                Intent returnIntent = new Intent();
+                returnIntent.putStringArrayListExtra("result", adapter.getSelected());
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
             }
         });
 
         regionsRecyclerView = (RecyclerView) findViewById(R.id.regionsRecyclerView);
         regionsRecyclerView.setLayoutManager(new LinearLayoutManager(SelectRegionsActivity.this));
-        List<RegionModel> regionModels = getRegionModels();
 
-        regionsRecyclerView.setAdapter(new RegionsAdapter(this,regionModels));
+        List<RegionModel> regionModels = getRegionModels();
+        adapter = new RegionsAdapter(this, regionModels);
+        regionsRecyclerView.setAdapter(adapter);
     }
 
     private List<RegionModel> getRegionModels() {
 
         List<RegionModel> regionModels = new ArrayList<>();
         List<RegionsEnum> regions = new ArrayList<>(Arrays.asList(RegionsEnum.values()));
-        for (RegionsEnum reg:regions) {
+        for (RegionsEnum reg : regions) {
             regionModels.add(new RegionModel(reg));
         }
 
@@ -99,18 +105,15 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             isChecked = false;
         }
 
-        public String getRegionName()
-        {
+        public String getRegionName() {
             return regionName;
         }
 
-        public boolean isChecked()
-        {
+        public boolean isChecked() {
             return isChecked;
         }
 
-        public  RegionsEnum getRegionObject()
-        {
+        public RegionsEnum getRegionObject() {
             return regionObject;
         }
 
@@ -152,13 +155,11 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         private View.OnClickListener checkBoxListner = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RegionModel rm = (RegionModel)v.getTag();
+                RegionModel rm = (RegionModel) v.getTag();
 
-                if(rm.isChecked()) {
+                if (rm.isChecked()) {
                     rm.setChecked(false);
-                }
-                else
-                {
+                } else {
                     rm.setChecked(true);
                 }
             }
@@ -190,6 +191,19 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
         public void setModels(List<RegionModel> models) {
             mModels = new ArrayList<>(models);
+        }
+
+        public ArrayList<String> getSelected()
+        {
+            ArrayList<String> selectedRegions = new ArrayList<>();
+            for (RegionModel r:mModels) {
+                if(r.isChecked())
+                {
+                    selectedRegions.add(r.getRegionObject().getRegion());
+                }
+            }
+
+            return  selectedRegions;
         }
     }
 

@@ -1,5 +1,6 @@
 package aks.geotrends.android;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private KeywordsContentObserver keywordContentObserver;
     private ViewPager viewPager;
     private DesignDemoPagerAdapter adapter;
+    private List<RegionsEnum> regions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        adapter = new DesignDemoPagerAdapter(getSupportFragmentManager());
+        adapter = new DesignDemoPagerAdapter(getSupportFragmentManager(),regions);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(adapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
@@ -137,8 +139,30 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                ArrayList<String> selectedRegionsCodes = data.getStringArrayListExtra("result");
+                System.out.println(selectedRegionsCodes);
+
+                regions = new ArrayList<RegionsEnum>();
+                for (String regCode:selectedRegionsCodes) {
+
+                    final RegionsEnum region = RegionsEnum.getRegionByShortCode(regCode);
+                    regions.add(region);
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
+
     private void startSelectRegionsActivity() {
-        startActivity(new Intent(this, SelectRegionsActivity.class));
+
+        startActivityForResult(new Intent(this, SelectRegionsActivity.class), 1);
     }
 
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
@@ -163,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
 
-        private final RegionsEnum[] regions = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine, RegionsEnum.Brazil, RegionsEnum.Egypt, RegionsEnum.Canada};
+        private final RegionsEnum[] regionsArray = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine, RegionsEnum.Brazil, RegionsEnum.Egypt, RegionsEnum.Canada};
         private List<RegionsEnum> regionList;
 
         private Fragment mCurrentFragment;
@@ -172,10 +196,16 @@ public class MainActivity extends AppCompatActivity {
             return mCurrentFragment;
         }
 
-        public DesignDemoPagerAdapter(FragmentManager fm) {
+        public DesignDemoPagerAdapter(FragmentManager fm, List<RegionsEnum> regions) {
             super(fm);
-            regionList = new ArrayList<>();
-            regionList.addAll(Arrays.asList(regions));
+            if(regions==null || regions.size()==0) {
+                regionList = new ArrayList<>();
+                regionList.addAll(Arrays.asList(regionsArray));
+            }
+            else
+            {
+                regionList = regions;
+            }
         }
 
         @Override
