@@ -162,7 +162,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void startSelectRegionsActivity() {
 
-        startActivityForResult(new Intent(this, SelectRegionsActivity.class), 1);
+        final List<RegionsEnum> regionsEnumList = adapter.getRegionList();
+        ArrayList<String> regCodeList = new ArrayList<>();
+
+        for (RegionsEnum rEnum: regionsEnumList) {
+
+            regCodeList.add(rEnum.getRegion());
+        }
+
+        final Intent intent = new Intent(this, SelectRegionsActivity.class);
+        intent.putStringArrayListExtra("currentSelected", regCodeList);
+        startActivityForResult(intent, 1);
     }
 
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
@@ -206,6 +216,11 @@ public class MainActivity extends AppCompatActivity {
             {
                 regionList = regions;
             }
+        }
+
+        public  List<RegionsEnum> getRegionList()
+        {
+            return  regionList;
         }
 
         @Override

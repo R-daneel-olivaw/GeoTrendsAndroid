@@ -5,10 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +30,7 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
     private RecyclerView regionsRecyclerView;
     private RegionsAdapter adapter;
+    private List<String> currentSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +47,21 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
                 Intent returnIntent = new Intent();
                 returnIntent.putStringArrayListExtra("result", adapter.getSelected());
-                setResult(Activity.RESULT_OK,returnIntent);
+                setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             }
         });
 
         regionsRecyclerView = (RecyclerView) findViewById(R.id.regionsRecyclerView);
-        regionsRecyclerView.setLayoutManager(new LinearLayoutManager(SelectRegionsActivity.this));
+        regionsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final Intent intent = getIntent();
+        currentSelected = intent.getStringArrayListExtra("currentSelected");
 
         List<RegionModel> regionModels = getRegionModels();
         adapter = new RegionsAdapter(this, regionModels);
@@ -102,7 +110,11 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             regionObject = region;
             regionName = regionObject.getPrintName();
 
-            isChecked = false;
+            if (currentSelected.contains(region.getRegion())) {
+                isChecked = true;
+            } else {
+                isChecked = false;
+            }
         }
 
         public String getRegionName() {
@@ -193,17 +205,15 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             mModels = new ArrayList<>(models);
         }
 
-        public ArrayList<String> getSelected()
-        {
+        public ArrayList<String> getSelected() {
             ArrayList<String> selectedRegions = new ArrayList<>();
-            for (RegionModel r:mModels) {
-                if(r.isChecked())
-                {
+            for (RegionModel r : mModels) {
+                if (r.isChecked()) {
                     selectedRegions.add(r.getRegionObject().getRegion());
                 }
             }
 
-            return  selectedRegions;
+            return selectedRegions;
         }
     }
 
