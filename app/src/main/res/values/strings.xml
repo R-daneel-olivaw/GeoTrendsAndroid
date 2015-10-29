@@ -28,5 +28,6 @@
     <string name="about">About</string>
     <string name="give_feedback">Give Feedback</string>
     <string name="requestFeature">Request a feature</string>
+    <string name="give_me_feedback">Give me your feedback :)</string>
 
 </resources>

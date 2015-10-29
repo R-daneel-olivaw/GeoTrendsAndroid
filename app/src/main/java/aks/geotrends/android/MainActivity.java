@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.feedback:
                         openFeedbackForm();
                         return true;
-                    case R.id.request_feature:
-                        return true;
                 }
                 return false;
             }
