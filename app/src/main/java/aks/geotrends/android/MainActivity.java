@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private KeywordsContentObserver keywordContentObserver;
     private ViewPager viewPager;
-    private DesignDemoPagerAdapter adapter;
+    private RegionsPagerAdapter adapter;
     private List<RegionsEnum> regions;
 
     @Override
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        adapter = new DesignDemoPagerAdapter(getSupportFragmentManager(),regions);
+        adapter = new RegionsPagerAdapter(getSupportFragmentManager(),regions);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(adapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class DesignDemoPagerAdapter extends FragmentStatePagerAdapter {
+    private class RegionsPagerAdapter extends FragmentStatePagerAdapter {
 
         private final RegionsEnum[] regionsArray = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine, RegionsEnum.Brazil, RegionsEnum.Egypt, RegionsEnum.Canada};
         private List<RegionsEnum> regionList;
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             return mCurrentFragment;
         }
 
-        public DesignDemoPagerAdapter(FragmentManager fm, List<RegionsEnum> regions) {
+        public RegionsPagerAdapter(FragmentManager fm, List<RegionsEnum> regions) {
             super(fm);
             if(regions==null || regions.size()==0) {
                 regionList = new ArrayList<>();
