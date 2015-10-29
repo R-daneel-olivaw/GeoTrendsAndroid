@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(i);
                         return true;
                     case R.id.feedback:
+                        openFeedbackForm();
                         return true;
                     case R.id.request_feature:
                         return true;
@@ -94,6 +95,14 @@ public class MainActivity extends AppCompatActivity {
                 }).show();
             }
         });
+    }
+
+    private void openFeedbackForm() {
+
+        String url = "http://goo.gl/forms/hWyj6jD9X6";
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 
     @Override
