@@ -63,10 +63,19 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                menuItem.setChecked(true);
-                mDrawerLayout.closeDrawers();
-                Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
-                return true;
+
+                switch (menuItem.getItemId())
+                {
+                    case R.id.about_app:
+                        Intent i = new Intent(MainActivity.this, AboutActivity.class);
+                        startActivity(i);
+                        return true;
+                    case R.id.feedback:
+                        return true;
+                    case R.id.request_feature:
+                        return true;
+                }
+                return false;
             }
         });
 

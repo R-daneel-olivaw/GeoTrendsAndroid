@@ -25,5 +25,8 @@
 
     <string name="title_activity_about">AboutActivity</string>
     <string name="buy_coffee">I will like to buy you a coffee</string>
+    <string name="about">About</string>
+    <string name="give_feedback">Give Feedback</string>
+    <string name="requestFeature">Request a feature</string>
 
 </resources>
