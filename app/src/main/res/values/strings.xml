@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">GeoTrends</string>
-    <string name="title_section1">United States</string>
-    <string name="title_section2">India</string>
-    <string name="title_section3">Japan</string>
+    <string name="app_name">Googligence</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
@@ -25,5 +22,8 @@
     <string name="select">Select</string>
     <string name="reorder">Reorder</string>
     <string name="action_search">Search</string>
+
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="buy_coffee">I will like to buy you a coffee</string>
 
 </resources>
