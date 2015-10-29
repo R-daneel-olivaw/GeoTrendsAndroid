@@ -29,8 +29,7 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
         objects = items;
         this.clickHandler = clickHandler;
 
-        daysHours = new PeriodFormatterBuilder().appendDays().appendSuffix(" day", " days").appendSeparator(" and ")
-                .appendHours().appendSuffix(" hour", " hours").toFormatter();
+        daysHours = new PeriodFormatterBuilder().appendWeeks().appendSuffix("w").appendDays().appendSuffix("d").appendHours().appendSuffix("h").toFormatter();
     }
 
     @Override
@@ -65,12 +64,9 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
         Period period = keywordAge.toPeriod();
 
         String keywordAgeString;
-        if(period.toStandardMinutes().getMinutes()<60)
-        {
+        if (period.toStandardMinutes().getMinutes() < 60) {
             keywordAgeString = LT_1_HOUR;
-        }
-        else
-        {
+        } else {
             keywordAgeString = daysHours.print(period);
         }
 
