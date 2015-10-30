@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private RegionsPagerAdapter adapter;
     private List<RegionsEnum> regions;
 
+    private boolean isVewPagerRefreshNeeded = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,26 +99,14 @@ public class MainActivity extends AppCompatActivity {
                 }).show();
             }
         });
-    }
 
-    private void openFeedbackForm() {
-
-        String url = "http://goo.gl/forms/hWyj6jD9X6";
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        populateViewPagerFragments();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        regions = fetchDisplayedRegionsFromSharedPrefrences();
-
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setPagerAdapter();
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
-        tabLayout.setupWithViewPager(viewPager);
 
         String uriString = KeywordsDataSourceHelper.KEYWORDS_TABLE_URI;
         Uri uri = Uri.parse(uriString);
@@ -197,11 +187,38 @@ public class MainActivity extends AppCompatActivity {
                     selectedregions.add(region);
                 }
                 saveDisplayedRegionsInSharedPrefrences(selectedregions);
+                isVewPagerRefreshNeeded = true;
             }
             if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+                isVewPagerRefreshNeeded = false;
             }
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        if(isVewPagerRefreshNeeded)
+        {
+            populateViewPagerFragments();
+        }
+    }
+
+    private void populateViewPagerFragments() {
+        regions = fetchDisplayedRegionsFromSharedPrefrences();
+
+        setPagerAdapter();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void openFeedbackForm() {
+
+        String url = "http://goo.gl/forms/hWyj6jD9X6";
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 
     private void setPagerAdapter()

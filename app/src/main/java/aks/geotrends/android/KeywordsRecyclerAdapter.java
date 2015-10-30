@@ -18,7 +18,7 @@ import aks.geotrends.android.db.Keyword;
 
 public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecyclerAdapter.ViewHolder> {
 
-    private static final String LT_1_HOUR = "< 1 hour";
+    private static final String LT_1_HOUR = "< 1h";
 
     private List<Keyword> objects;
     private View.OnClickListener clickHandler;

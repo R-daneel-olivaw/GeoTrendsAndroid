@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">Googligence</string>
+    <string name="app_name_short">googli</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>

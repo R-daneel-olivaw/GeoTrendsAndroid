@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/tvKeyword"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:paddingLeft="3dp"
