@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private List<RegionsEnum> regions;
 
     private boolean isVewPagerRefreshNeeded = false;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         populateViewPagerFragments();
     }
@@ -115,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
 
         keywordContentObserver = new KeywordsContentObserver(new Handler());
         getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
+
+        final RegionsEnum region = fetchCurrentRegionFromSharedPref();
+        if (null != region) {
+            tryToSwitchToRegion(region);
+        }
     }
 
     @Override
@@ -196,17 +203,15 @@ public class MainActivity extends AppCompatActivity {
         if (isVewPagerRefreshNeeded) {
             populateViewPagerFragments();
         }
-
-        final RegionsEnum region = fetchCurrentRegionFromSharedPref();
-        tryToSwitchToRegion(region);
     }
 
     private void tryToSwitchToRegion(RegionsEnum region) {
         final int wantedPosition = adapter.getItemPosition(region);
-        final int currentPosition = adapter.getItemPosition(adapter.getCurrentFragment());
+        final int currentPosition = 0;
 
         if ((wantedPosition != -1) && (wantedPosition != currentPosition)) {
-            viewPager.setCurrentItem(wantedPosition);
+
+            tabLayout.getTabAt(wantedPosition).select();
         }
     }
 
@@ -334,9 +339,9 @@ public class MainActivity extends AppCompatActivity {
         private final RegionsEnum[] regionsArray = {RegionsEnum.UnitedStates, RegionsEnum.India, RegionsEnum.Japan, RegionsEnum.Ukraine, RegionsEnum.Brazil, RegionsEnum.Egypt, RegionsEnum.Canada};
         private List<RegionsEnum> regionList;
 
-        private Fragment mCurrentFragment;
+        private KeywordRecyclerViewFragment mCurrentFragment;
 
-        public Fragment getCurrentFragment() {
+        public KeywordRecyclerViewFragment getCurrentFragment() {
             return mCurrentFragment;
         }
 
@@ -378,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             if (getCurrentFragment() != object) {
-                mCurrentFragment = ((Fragment) object);
+                mCurrentFragment = (KeywordRecyclerViewFragment) object;
             }
             super.setPrimaryItem(container, position, object);
         }
