@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String SHARED_PREFS_FILE = "googligencepref";
     private static final String REGIONS_SET = "regionsSet";
+    private static final String CURRENT_REGION = "current_region";
+
     private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
     private DrawerLayout mDrawerLayout;
@@ -115,31 +117,23 @@ public class MainActivity extends AppCompatActivity {
         getContentResolver().registerContentObserver(uri, true, keywordContentObserver);
     }
 
-    private List<RegionsEnum> fetchDisplayedRegionsFromSharedPrefrences() {
-
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
-        final Set<String> regionCodeSet = prefs.getStringSet(REGIONS_SET, null);
-
-        if (null == regionCodeSet || regionCodeSet.size() == 0) {
-            return null;
-        } else {
-            List<RegionsEnum> regionsList = new ArrayList<>();
-
-            for (String regCode : regionCodeSet) {
-
-                regionsList.add(RegionsEnum.getRegionByShortCode(regCode));
-            }
-
-            return regionsList;
-        }
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
 
         getContentResolver().unregisterContentObserver(keywordContentObserver);
         saveDisplayedRegionsInSharedPrefrences(regions);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        final KeywordRecyclerViewFragment currentFragment = (KeywordRecyclerViewFragment) adapter.getCurrentFragment();
+        final RegionsEnum currentRegion = currentFragment.getRegion();
+
+        saveCurrentRegionToShredPref(currentRegion);
+
     }
 
     @Override
@@ -199,10 +193,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
 
-        if(isVewPagerRefreshNeeded)
-        {
+        if (isVewPagerRefreshNeeded) {
             populateViewPagerFragments();
         }
+
+        final RegionsEnum region = fetchCurrentRegionFromSharedPref();
+        tryToSwitchToRegion(region);
+    }
+
+    private void tryToSwitchToRegion(RegionsEnum region) {
+        final int wantedPosition = adapter.getItemPosition(region);
+        final int currentPosition = adapter.getItemPosition(adapter.getCurrentFragment());
+
+        if ((wantedPosition != -1) && (wantedPosition != currentPosition)) {
+            viewPager.setCurrentItem(wantedPosition);
+        }
+    }
+
+    private RegionsEnum fetchCurrentRegionFromSharedPref() {
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
+        final String regionCode = prefs.getString(CURRENT_REGION, null);
+
+        RegionsEnum region = null;
+
+        if (null == regionCode) {
+            region = null;
+        } else {
+            region = RegionsEnum.getRegionByShortCode(regionCode);
+        }
+
+        return region;
+    }
+
+    private void saveCurrentRegionToShredPref(RegionsEnum currentRegion) {
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(CURRENT_REGION, currentRegion.getRegion());
+        editor.commit();
     }
 
     private void populateViewPagerFragments() {
@@ -221,8 +248,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
-    private void setPagerAdapter()
-    {
+    private void setPagerAdapter() {
         adapter = new RegionsPagerAdapter(getSupportFragmentManager(), regions);
         viewPager.setAdapter(adapter);
 
@@ -247,6 +273,25 @@ public class MainActivity extends AppCompatActivity {
         editor.putStringSet(REGIONS_SET, regCodeSet);
         editor.commit();
 
+    }
+
+    private List<RegionsEnum> fetchDisplayedRegionsFromSharedPrefrences() {
+
+        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
+        final Set<String> regionCodeSet = prefs.getStringSet(REGIONS_SET, null);
+
+        if (null == regionCodeSet || regionCodeSet.size() == 0) {
+            return null;
+        } else {
+            List<RegionsEnum> regionsList = new ArrayList<>();
+
+            for (String regCode : regionCodeSet) {
+
+                regionsList.add(RegionsEnum.getRegionByShortCode(regCode));
+            }
+
+            return regionsList;
+        }
     }
 
     private void startSelectRegionsActivity() {
@@ -303,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 regionList = regions;
             }
+
+            System.out.println(regions);
         }
 
         public List<RegionsEnum> getRegionList() {
@@ -334,6 +381,20 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentFragment = ((Fragment) object);
             }
             super.setPrimaryItem(container, position, object);
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            if (object instanceof RegionsEnum) {
+
+                RegionsEnum region = (RegionsEnum) object;
+                final int regionIndex = regionList.indexOf(region);
+
+                return regionIndex;
+
+            } else {
+                return super.getItemPosition(object);
+            }
         }
     }
 
