@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.fragments.KeywordRecyclerViewFragment;
 import aks.geotrends.android.utils.RegionsEnum;
 
@@ -60,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SettingsDatasourceHelper settingsHelper = new SettingsDatasourceHelper(this);
+        settingsHelper.open();
+        settingsHelper.ensureAllRegions();
+        settingsHelper.close();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

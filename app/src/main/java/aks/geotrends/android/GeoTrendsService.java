@@ -1,13 +1,12 @@
 package aks.geotrends.android;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.Date;
 
 import org.apache.http.client.ClientProtocolException;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.json.JsonKeyword;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
 import aks.geotrends.android.utils.RegionsEnum;
 import aks.geotrends.android.utils.WebserviceHelper;
@@ -51,6 +50,8 @@ public class GeoTrendsService extends Service {
 
 					saveKeywordsToDatabase(regionalTrending);
 
+					updateRefreshDate(region);
+
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -62,6 +63,14 @@ public class GeoTrendsService extends Service {
 			// the service in the middle of handling another job
 			stopSelf(msg.arg1);
 		}
+	}
+
+	private void updateRefreshDate(RegionsEnum region) {
+
+		SettingsDatasourceHelper settingsHelper = new SettingsDatasourceHelper(this);
+		settingsHelper.open();
+		settingsHelper.updateRefreshedDate(region, new Date());
+		settingsHelper.close();
 	}
 
 	@Override
