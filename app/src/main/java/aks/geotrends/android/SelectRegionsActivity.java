@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import aks.geotrends.android.utils.DividerItemDecoration;
 import aks.geotrends.android.utils.RegionsEnum;
 
 public class SelectRegionsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
@@ -55,6 +57,8 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
         regionsRecyclerView = (RecyclerView) findViewById(R.id.regionsRecyclerView);
         regionsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        regionsRecyclerView.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
+        regionsRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override

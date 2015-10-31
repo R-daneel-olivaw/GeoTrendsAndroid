@@ -18,22 +18,24 @@ import aks.geotrends.android.db.Keyword;
 
 public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecyclerAdapter.ViewHolder> {
 
-    private static final String LT_1_HOUR = "< 1 hour";
+    private static final String LT_1_HOUR = "< 1h";
 
     private List<Keyword> objects;
+    private View.OnClickListener clickHandler;
 
     private PeriodFormatter daysHours = null;
 
-    public KeywordsRecyclerAdapter(List<Keyword> items) {
+    public KeywordsRecyclerAdapter(List<Keyword> items, View.OnClickListener clickHandler) {
         objects = items;
+        this.clickHandler = clickHandler;
 
-        daysHours = new PeriodFormatterBuilder().appendDays().appendSuffix(" day", " days").appendSeparator(" and ")
-                .appendHours().appendSuffix(" hour", " hours").toFormatter();
+        daysHours = new PeriodFormatterBuilder().appendWeeks().appendSuffix("w").appendDays().appendSuffix("d").appendHours().appendSuffix("h").toFormatter();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
+        v.setOnClickListener(clickHandler);
 
         return new ViewHolder(v);
     }
@@ -44,6 +46,8 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
 
         viewHolder.keyword.setText(keyword.getKeyword());
         viewHolder.date.setText(getDurationText(keyword));
+
+        viewHolder.getItemView().setTag(keyword);
     }
 
     @Override
@@ -60,12 +64,9 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
         Period period = keywordAge.toPeriod();
 
         String keywordAgeString;
-        if(period.toStandardMinutes().getMinutes()<60)
-        {
+        if (period.toStandardMinutes().getMinutes() < 60) {
             keywordAgeString = LT_1_HOUR;
-        }
-        else
-        {
+        } else {
             keywordAgeString = daysHours.print(period);
         }
 
@@ -74,14 +75,20 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
 
     // View lookup cache
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView keyword;
-        TextView date;
+        private TextView keyword;
+        private TextView date;
+        private View itemView;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
 
             keyword = (TextView) itemView.findViewById(R.id.tvKeyword);
             date = (TextView) itemView.findViewById(R.id.tvDuration);
+        }
+
+        public View getItemView() {
+            return itemView;
         }
     }
 

@@ -3,29 +3,13 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/navigation_item_attachment"
-            android:checked="true"
-            android:icon="@drawable/ic_attachment"
-            android:title="@string/nav_item_attachment" />
+            android:id="@+id/about_app"
+            android:icon="@drawable/ic_action_about"
+            android:title="@string/about" />
         <item
-            android:id="@+id/navigation_item_images"
-            android:icon="@drawable/ic_image"
-            android:title="@string/nav_item_images" />
-        <item
-            android:id="@+id/navigation_item_location"
-            android:icon="@drawable/ic_place"
-            android:title="@string/nav_item_location" />
+            android:id="@+id/feedback"
+            android:icon="@drawable/ic_action_feedback"
+            android:title="@string/give_feedback" />
     </group>
-
-    <item android:title="@string/nav_sub_menu">
-        <menu>
-            <item
-                android:icon="@drawable/ic_emoticon"
-                android:title="@string/nav_sub_menu_item01" />
-            <item
-                android:icon="@drawable/ic_emoticon"
-                android:title="@string/nav_sub_menu_item02" />
-        </menu>
-    </item>
 
 </menu>

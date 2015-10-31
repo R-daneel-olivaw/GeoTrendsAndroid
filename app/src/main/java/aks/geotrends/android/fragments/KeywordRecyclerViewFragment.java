@@ -1,10 +1,12 @@
 package aks.geotrends.android.fragments;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import aks.geotrends.android.R;
 import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.KeywordsSQLiteHelper;
+import aks.geotrends.android.utils.DividerItemDecoration;
 import aks.geotrends.android.utils.RegionsEnum;
 
 public class KeywordRecyclerViewFragment extends Fragment {
@@ -39,6 +42,23 @@ public class KeywordRecyclerViewFragment extends Fragment {
     private MainActivity activity;
     private KeywordsDataSourceHelper helper;
     private RecyclerView recyclerView;
+
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            final Keyword taggedKeyword = (Keyword) v.getTag();
+            sendSearchIntentForKeyword(taggedKeyword);
+        }
+    };
+
+    private void sendSearchIntentForKeyword(Keyword taggedKeyword) {
+
+        String q = taggedKeyword.getKeyword();
+        Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+        intent.putExtra(SearchManager.QUERY, q);
+        startActivity(intent);
+    }
 
     public static KeywordRecyclerViewFragment newInstance(RegionsEnum region, int sectionNumber) {
         KeywordRecyclerViewFragment fragment = new KeywordRecyclerViewFragment(region);
@@ -56,12 +76,18 @@ public class KeywordRecyclerViewFragment extends Fragment {
     private KeywordRecyclerViewFragment() {
     }
 
+    public RegionsEnum getRegion() {
+        return region;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.keyword_recycler_fragment, container, false);
 
-        recyclerView = (RecyclerView)view.findViewById(R.id.recyclerview);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         return view;
     }
@@ -106,7 +132,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
         }
 
         List<Keyword> keywords = getKeywordsFromCursor(c);
-        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords));
+        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener));
     }
 
     @Override
@@ -186,7 +212,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
     }
 
     public void databaseContentsChanged() {
-        if(null!=helper) {
+        if (null != helper) {
             populateRecyclerView();
         }
     }
