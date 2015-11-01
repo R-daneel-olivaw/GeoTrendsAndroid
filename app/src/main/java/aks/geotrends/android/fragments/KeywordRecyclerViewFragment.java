@@ -125,7 +125,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
         // Check if the string contains any digits, if it doesnt it is probably saying 'just now'
         if (formattedInterval.matches(".*\\d+.*")) {
-            refreshDuration.setText("refreshed " + formattedInterval + " ago");
+            refreshDuration.setText("refreshed ~" + formattedInterval + " ago");
         } else {
             refreshDuration.setText("refreshed " + formattedInterval);
         }
@@ -168,8 +168,6 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
         keywordsHelper.close();
         recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener));
-
-        updateLastRefreshedDate();
     }
 
     @Override
@@ -179,6 +177,13 @@ public class KeywordRecyclerViewFragment extends Fragment {
         this.activity = (MainActivity) activity;
 //		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateLastRefreshedDate();
     }
 
     private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
@@ -251,6 +256,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
     public void databaseContentsChanged() {
         if (null != keywordsHelper) {
             populateRecyclerView();
+            updateLastRefreshedDate();
         }
     }
 }

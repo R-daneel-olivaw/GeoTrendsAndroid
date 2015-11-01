@@ -50,14 +50,6 @@ public class DurationFormatter {
         final Minutes minutes = Minutes.minutesIn(interval);
         final Seconds seconds = Seconds.secondsIn(interval);
 
-        if (seconds.getSeconds() < 30) {
-            return "just now";
-        } else if (seconds.getSeconds() < 60 && minutes.getMinutes() == 0) {
-            return seconds.getSeconds() + "s ago";
-        } else if (hours.getHours() == 0 && minutes.getMinutes() == 0) {
-            return seconds.getSeconds() + "s ago";
-        }
-
         if (weeks.getWeeks() != 0) {
             return fweeks.print(period);
         } else if (weeks.getWeeks() == 0 && days.getDays() != 0) {
@@ -66,7 +58,7 @@ public class DurationFormatter {
             return fhours.print(period);
         } else if (hours.getHours() == 0 && minutes.getMinutes() != 0) {
             return fmins.print(period);
-        } else if (minutes.getMinutes() == 0 && seconds.getSeconds() > 30) {
+        } else if (minutes.getMinutes() == 0 && seconds.getSeconds() > 10) {
             return fseconds.print(period);
         } else {
             return "just now";
