@@ -12,6 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,6 +31,8 @@ import aks.geotrends.android.R;
 import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.KeywordsSQLiteHelper;
+import aks.geotrends.android.db.RegionalSettings;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.utils.DividerItemDecoration;
 import aks.geotrends.android.utils.RegionsEnum;
 
@@ -40,8 +45,10 @@ public class KeywordRecyclerViewFragment extends Fragment {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
     private View view;
     private MainActivity activity;
-    private KeywordsDataSourceHelper helper;
+    private KeywordsDataSourceHelper keywordsHelper;
+    private SettingsDatasourceHelper regionSettingsHelper;
     private RecyclerView recyclerView;
+    private TextView refreshDuration;
 
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -89,22 +96,35 @@ public class KeywordRecyclerViewFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        refreshDuration = (TextView) view.findViewById(R.id.time_since_last_refresh);
+
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        helper = new KeywordsDataSourceHelper(activity);
-        helper.open();
+        keywordsHelper = new KeywordsDataSourceHelper(activity);
+        regionSettingsHelper = new SettingsDatasourceHelper(activity);
+
         populateRecyclerView();
+    }
+
+    private void updateLastRefreshedDate() {
+
+        regionSettingsHelper.open();
+        final RegionalSettings regionalSettings = regionSettingsHelper.getSettingsForRegion(region);
+        regionSettingsHelper.close();
+
+        final Date lastRefreshDate = regionalSettings.getRefreshDate();
+
+        refreshDuration.setText(lastRefreshDate.toString());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        helper.close();
-        helper = null;
+        keywordsHelper = null;
     }
 
     public void startDelayedRefresh() {
@@ -125,6 +145,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void populateRecyclerView() {
 
+        keywordsHelper.open();
         Cursor c = getDataCursor();
 
         if (c.getCount() == 0) {
@@ -132,7 +153,11 @@ public class KeywordRecyclerViewFragment extends Fragment {
         }
 
         List<Keyword> keywords = getKeywordsFromCursor(c);
+
+        keywordsHelper.close();
         recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener));
+
+        updateLastRefreshedDate();
     }
 
     @Override
@@ -190,7 +215,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private Cursor getDataCursor() {
 
-        Cursor c = helper.getKeywords(region);
+        Cursor c = keywordsHelper.getKeywords(region);
 
         return c;
     }
@@ -212,7 +237,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
     }
 
     public void databaseContentsChanged() {
-        if (null != helper) {
+        if (null != keywordsHelper) {
             populateRecyclerView();
         }
     }

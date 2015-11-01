@@ -41,7 +41,7 @@ public class SettingsDatasourceHelper {
         dbHelper.close();
     }
 
-    public ReginalSettings createSettingsForRegion(RegionsEnum region) {
+    public RegionalSettings createSettingsForRegion(RegionsEnum region) {
         ContentValues values = new ContentValues();
         values.put(KeywordsSQLiteHelper.COLUMN_REGION_SHORT, region.getRegion());
         values.put(KeywordsSQLiteHelper.COLUMN_REFRESHED_DATE, getDateFormatted(new Date(Long.MIN_VALUE)));
@@ -53,7 +53,7 @@ public class SettingsDatasourceHelper {
                 KeywordsSQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
         cursor.moveToFirst();
 
-        ReginalSettings rSettings = getSettings(cursor);
+        RegionalSettings rSettings = getSettings(cursor);
 
         return rSettings;
     }
@@ -62,9 +62,9 @@ public class SettingsDatasourceHelper {
         return formatter.format(date);
     }
 
-    private ReginalSettings getSettings(Cursor cursor) {
+    private RegionalSettings getSettings(Cursor cursor) {
 
-        ReginalSettings rSettings = new ReginalSettings();
+        RegionalSettings rSettings = new RegionalSettings();
 
         rSettings.setId(cursor.getLong(0));
         rSettings.setRegionCode(cursor.getString(1));
@@ -91,16 +91,16 @@ public class SettingsDatasourceHelper {
 
         for (RegionsEnum reg : allRegions) {
 
-            ReginalSettings rSetting = getSettingsForRegion(reg);
+            RegionalSettings rSetting = getSettingsForRegion(reg);
             if (null == rSetting) {
                 createSettingsForRegion(reg);
             }
         }
     }
 
-    private ReginalSettings getSettingsForRegion(RegionsEnum reg) {
+    public RegionalSettings getSettingsForRegion(RegionsEnum reg) {
 
-        ReginalSettings rSettings = null;
+        RegionalSettings rSettings = null;
 
         Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONAL_SETTINGS, REGIONAL_SETTINGS_ALL_COLUMNS,
                 KeywordsSQLiteHelper.COLUMN_REGION_SHORT + " = '" + reg.getRegion() + "'", null, null, null, null);
@@ -116,13 +116,13 @@ public class SettingsDatasourceHelper {
 
     public void updateRefreshedDate(RegionsEnum region, Date refreshedDate) {
 
-        final ReginalSettings settingsForRegion = getSettingsForRegion(region);
+        final RegionalSettings settingsForRegion = getSettingsForRegion(region);
         settingsForRegion.setRefreshDate(refreshedDate);
 
         updateSettingsForRegion(settingsForRegion);
     }
 
-    private void updateSettingsForRegion(ReginalSettings settingsForRegion) {
+    private void updateSettingsForRegion(RegionalSettings settingsForRegion) {
 
         ContentValues values = new ContentValues();
         values.put(KeywordsSQLiteHelper.COLUMN_REGION_SHORT, settingsForRegion.getRegionCode());

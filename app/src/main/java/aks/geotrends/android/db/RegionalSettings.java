@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by a77kumar on 2015-10-31.
  */
-public class ReginalSettings {
+public class RegionalSettings {
 
     private String regionCode;
     private Long id;
