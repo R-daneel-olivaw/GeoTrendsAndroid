@@ -14,7 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.joda.time.format.PeriodFormatterBuilder;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,6 +35,7 @@ import aks.geotrends.android.db.KeywordsSQLiteHelper;
 import aks.geotrends.android.db.RegionalSettings;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.utils.DividerItemDecoration;
+import aks.geotrends.android.utils.DurationFormatter;
 import aks.geotrends.android.utils.RegionsEnum;
 
 public class KeywordRecyclerViewFragment extends Fragment {
@@ -118,7 +120,17 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
         final Date lastRefreshDate = regionalSettings.getRefreshDate();
 
-        refreshDuration.setText(lastRefreshDate.toString());
+        final DurationFormatter dFormatter = DurationFormatter.getInstance();
+        final String formattedInterval = dFormatter.formatInterval(new Interval(new DateTime(lastRefreshDate), DateTime.now()));
+
+        // Check if the string contains any digits, if it doesnt it is probably saying 'just now'
+        if (formattedInterval.matches(".*\\d+.*")) {
+            refreshDuration.setText("refreshed " + formattedInterval + " ago");
+        } else {
+            refreshDuration.setText("refreshed " + formattedInterval);
+        }
+
+
     }
 
     @Override
