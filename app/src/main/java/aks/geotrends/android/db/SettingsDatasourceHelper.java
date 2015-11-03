@@ -44,7 +44,7 @@ public class SettingsDatasourceHelper {
     public RegionalSettings createSettingsForRegion(RegionsEnum region) {
         ContentValues values = new ContentValues();
         values.put(KeywordsSQLiteHelper.COLUMN_REGION_SHORT, region.getRegion());
-        values.put(KeywordsSQLiteHelper.COLUMN_REFRESHED_DATE, getDateFormatted(new Date(Long.MIN_VALUE)));
+        values.put(KeywordsSQLiteHelper.COLUMN_REFRESHED_DATE, getDateFormatted(new Date(0)));
         values.put(KeywordsSQLiteHelper.COLUMN_FAVORRITE, 0);
         values.put(KeywordsSQLiteHelper.COLUMN_DISPLAYED_UI, 0);
 
@@ -73,7 +73,7 @@ public class SettingsDatasourceHelper {
             rSettings.setRefreshDate(formatter.parse(stringDate));
         } catch (ParseException e) {
             e.printStackTrace();
-            rSettings.setRefreshDate(new Date(Long.MIN_VALUE));
+            rSettings.setRefreshDate(new Date(0));
         }
         rSettings.setIsFavorite(true ? cursor.getInt(3) == 1 : false);
         rSettings.setIsDisplayed(true ? cursor.getInt(4) == 1 : false);

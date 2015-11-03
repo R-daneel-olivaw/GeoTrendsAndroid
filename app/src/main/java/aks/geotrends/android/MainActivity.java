@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isVewPagerRefreshNeeded = false;
     private TabLayout tabLayout;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,12 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshDatabase();
 
-                Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_LONG).setAction("Close", new View.OnClickListener() {
+                snackbar = Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_INDEFINITE).setAction("Close", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 //						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
                     }
-                }).show();
+                });
+
+                snackbar.show();
             }
         });
 
@@ -432,6 +435,9 @@ public class MainActivity extends AppCompatActivity {
             // Handle change.
 
             System.out.println("CONTENT CHANGED !!!!!");
+            if (null != snackbar) {
+                snackbar.dismiss();
+            }
 
             final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
             for (Fragment f : fragmentCollection) {

@@ -243,12 +243,12 @@ public class KeywordRecyclerViewFragment extends Fragment {
         public int compare(Keyword lhs, Keyword rhs) {
 
             if (lhs.getSortingDate().before(rhs.getSortingDate())) {
-                return -1;
+                return 1;
             } else if (lhs.getSortingDate().equals(rhs.getSortingDate())) {
                 return 0;
             }
 
-            return 1;
+            return -1;
         }
 
     }
