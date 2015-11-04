@@ -104,11 +104,23 @@ public class MainActivity extends AppCompatActivity {
                 snackbar = Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_INDEFINITE).setAction("Close", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
+                        snackbar.dismiss();
                     }
                 });
 
                 snackbar.show();
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (null != snackbar) {
+                            snackbar.dismiss();
+                        }
+
+                    }
+                }, 5000);
             }
         });
 

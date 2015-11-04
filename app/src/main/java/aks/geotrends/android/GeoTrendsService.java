@@ -1,15 +1,5 @@
 package aks.geotrends.android;
 
-import java.io.IOException;
-import java.util.Date;
-
-import org.apache.http.client.ClientProtocolException;
-
-import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.db.SettingsDatasourceHelper;
-import aks.geotrends.android.json.JsonRegionalTrending;
-import aks.geotrends.android.utils.RegionsEnum;
-import aks.geotrends.android.utils.WebserviceHelper;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,112 +11,121 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.Date;
+
+import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
+import aks.geotrends.android.json.JsonRegionalTrending;
+import aks.geotrends.android.utils.RegionsEnum;
+import aks.geotrends.android.utils.WebserviceHelper;
+
 public class GeoTrendsService extends Service {
 
-	private Looper mServiceLooper;
-	private ServiceHandler mServiceHandler;
+    private Looper mServiceLooper;
+    private ServiceHandler mServiceHandler;
 
-	// Handler that receives messages from the thread
-	private final class ServiceHandler extends Handler {
-		public ServiceHandler(Looper looper) {
-			super(looper);
-		}
+    // Handler that receives messages from the thread
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
 
-		@Override
-		public void handleMessage(Message msg) {
+        @Override
+        public void handleMessage(Message msg) {
 
-			int regIntCode = msg.getData().getInt("reg", -1);
-			RegionsEnum region = RegionsEnum.getRegionForCode(regIntCode);
+            int regIntCode = msg.getData().getInt("reg", -1);
+            RegionsEnum region = RegionsEnum.getRegionForCode(regIntCode);
 
-			if (region == null) {
-				Log.e("Region not found", "Region int code = " + regIntCode);
-			} else {
-				try {
+            if (region == null) {
+                Log.e("Region not found", "Region int code = " + regIntCode);
+            } else {
+                try {
 
-					WebserviceHelper weHelper = new WebserviceHelper();
-					JsonRegionalTrending regionalTrending = weHelper.fetchKeyowrdForRegion(region);
+                    WebserviceHelper weHelper = new WebserviceHelper();
+                    JsonRegionalTrending regionalTrending = weHelper.fetchKeyowrdForRegion(region);
 
-					System.out.println(regionalTrending);
+                    System.out.println(regionalTrending);
 
-					saveKeywordsToDatabase(regionalTrending);
+                    saveKeywordsToDatabase(regionalTrending);
 
-					updateRefreshDate(region);
+                    updateRefreshDate(region);
 
-				} catch (ClientProtocolException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+                } catch (IOException e) {
+                    e.printStackTrace();
 
-			// Stop the service using the startId, so that we don't stop
-			// the service in the middle of handling another job
-			stopSelf(msg.arg1);
-		}
-	}
+                    Toast.makeText(GeoTrendsService.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-	private void updateRefreshDate(RegionsEnum region) {
+            // Stop the service using the startId, so that we don't stop
+            // the service in the middle of handling another job
+            stopSelf(msg.arg1);
+        }
+    }
 
-		SettingsDatasourceHelper settingsHelper = new SettingsDatasourceHelper(this);
-		settingsHelper.open();
-		settingsHelper.updateRefreshedDate(region, new Date());
-		settingsHelper.close();
-	}
+    private void updateRefreshDate(RegionsEnum region) {
 
-	@Override
-	public void onCreate() {
-		// Start up the thread running the service. Note that we create a
-		// separate thread because the service normally runs in the process's
-		// main thread, which we don't want to block. We also make it
-		// background priority so CPU-intensive work will not disrupt our UI.
-		HandlerThread thread = new HandlerThread("ServiceStartArguments");
-		thread.start();
+        SettingsDatasourceHelper settingsHelper = new SettingsDatasourceHelper(this);
+        settingsHelper.open();
+        settingsHelper.updateRefreshedDate(region, new Date());
+        settingsHelper.close();
+    }
 
-		// Get the HandlerThread's Looper and use it for our Handler
-		mServiceLooper = thread.getLooper();
-		mServiceHandler = new ServiceHandler(mServiceLooper);
-	}
+    @Override
+    public void onCreate() {
+        // Start up the thread running the service. Note that we create a
+        // separate thread because the service normally runs in the process's
+        // main thread, which we don't want to block. We also make it
+        // background priority so CPU-intensive work will not disrupt our UI.
+        HandlerThread thread = new HandlerThread("ServiceStartArguments");
+        thread.start();
 
-	private void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
+        // Get the HandlerThread's Looper and use it for our Handler
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+    }
 
-		KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
-		helper.open();
-		
-		helper.saveRegion(regionalTrending.getRegion());
-		helper.saveOrUpdateKeywords(regionalTrending);
-		
-		helper.close();
-	}
+    private void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
+        helper.open();
 
-		int regIntCode = intent.getIntExtra("reg", -1);
+        helper.saveRegion(regionalTrending.getRegion());
+        helper.saveOrUpdateKeywords(regionalTrending);
 
-		Bundle b = new Bundle();
-		b.putInt("reg", regIntCode);
+        helper.close();
+    }
 
-		// For each start request, send a message to start a job and deliver the
-		// start ID so we know which request we're stopping when we finish the
-		// job
-		Message msg = mServiceHandler.obtainMessage();
-		msg.arg1 = startId;
-		msg.setData(b);
-		mServiceHandler.sendMessage(msg);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+//		Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
-		// If we get killed, after returning from here, restart
-		return START_STICKY;
-	}
+        int regIntCode = intent.getIntExtra("reg", -1);
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		// We don't provide binding, so return null
-		return null;
-	}
+        Bundle b = new Bundle();
+        b.putInt("reg", regIntCode);
 
-	@Override
-	public void onDestroy() {
-		Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
-	}
+        // For each start request, send a message to start a job and deliver the
+        // start ID so we know which request we're stopping when we finish the
+        // job
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.setData(b);
+        mServiceHandler.sendMessage(msg);
+
+        // If we get killed, after returning from here, restart
+        return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // We don't provide binding, so return null
+        return null;
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
 }
