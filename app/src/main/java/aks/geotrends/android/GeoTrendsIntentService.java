@@ -1,8 +1,10 @@
 package aks.geotrends.android;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
@@ -30,7 +33,6 @@ public class GeoTrendsIntentService extends IntentService {
     private static final String ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE = "aks.geotrends.android.action.query.visible";
     private static final String AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION = "aks.geotrends.android.action.query.region";
 
-    // TODO: Rename parameters
     private static final String REGION = "aks.geotrends.android.extra.region";
 
     /**
@@ -67,6 +69,8 @@ public class GeoTrendsIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        Log.d("geotrends_intentservice", "received intent");
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE.equals(action)) {
@@ -84,7 +88,10 @@ public class GeoTrendsIntentService extends IntentService {
      */
     private void handleActionQueryVisible() {
         // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
+//        throw new UnsupportedOperationException("Not yet implemented");
+
+        Log.d("geotrends_intentservice", "refresh all visible...");
+
     }
 
     /**
@@ -92,8 +99,6 @@ public class GeoTrendsIntentService extends IntentService {
      * parameters.
      */
     private void handleActionQueryRegion(final int regionCode) {
-        // TODO: Handle action Baz
-//        throw new UnsupportedOperationException("Not yet implemented");
 
         final Thread workerThread = new Thread(new Runnable() {
             @Override
@@ -148,42 +153,5 @@ public class GeoTrendsIntentService extends IntentService {
         settingsHelper.open();
         settingsHelper.updateRefreshedDate(region, new Date());
         settingsHelper.close();
-    }
-
-    private void startScheduledIntents() {
-        Intent intent = new Intent("aks.geotrends.android.ws.query.visible");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(Calendar.MINUTE, 1);
-
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60, pendingIntent);
-
-        Log.d("geotrends", "intents created");
-    }
-
-    private boolean areIntentsScheduled() {
-        boolean intentsUp = (PendingIntent.getBroadcast(this, 0,
-                new Intent("aks.geotrends.android.ws.query.visible"),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        if (intentsUp) {
-            Log.d("geotrends", "intents are already active");
-        }
-
-        return intentsUp;
-    }
-
-    private void cancellAllPendingIntents(String action) {
-        Intent intent = new Intent(action);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-
-        Log.d("geotrends", "intents cancelled");
     }
 }

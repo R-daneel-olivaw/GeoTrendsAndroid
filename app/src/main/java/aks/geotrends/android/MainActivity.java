@@ -1,6 +1,8 @@
 package aks.geotrends.android;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +23,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +31,9 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -127,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         populateViewPagerFragments();
+
+        setUpPerioadicRefresh();
     }
 
     @Override
@@ -354,6 +361,53 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    //---------------------Pending intents for Auto Refresh-----------------
+
+    private void setUpPerioadicRefresh()
+    {
+//        if(areIntentsScheduled())
+//        {
+//            cancellAllPendingIntents("aks.geotrends.android.action.query.visible");
+//        }
+        startScheduledIntents();
+    }
+
+    private void startScheduledIntents() {
+        Intent intent = new Intent("aks.geotrends.android.action.query.visible");
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC, new Date().getTime(), 1000 * 10, pendingIntent);
+
+        Log.d("geotrends", "intents created");
+    }
+
+    private boolean areIntentsScheduled() {
+        boolean intentsUp = (PendingIntent.getBroadcast(this, 0,
+                new Intent("aks.geotrends.android.action.query.visible"),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        if (intentsUp) {
+            Log.d("geotrends", "intents are already active");
+        }
+
+        return intentsUp;
+    }
+
+    private void cancellAllPendingIntents(String action) {
+        Intent intent = new Intent(action);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+
+        Log.d("geotrends", "intents cancelled");
+    }
+
+    //---------------------Pending intents for Auto Refresh-----------------
 
     private class RegionsPagerAdapter extends FragmentStatePagerAdapter {
 
