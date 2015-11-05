@@ -229,7 +229,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private Cursor getDataCursor() {
 
-        Cursor c = keywordsHelper.getKeywords(region);
+        Cursor c = keywordsHelper.getKeywordsCursor(region);
 
         return c;
     }

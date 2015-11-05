@@ -1,22 +1,23 @@
 package aks.geotrends.android;
 
-import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
-import aks.geotrends.android.db.Region;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
 import aks.geotrends.android.utils.RegionsEnum;
@@ -35,6 +36,8 @@ public class GeoTrendsIntentService extends IntentService {
     private static final String AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION = "aks.geotrends.android.action.query.region";
 
     private static final String REGION = "aks.geotrends.android.extra.region";
+    private static final int PI_REQ_CODE = 55;
+    private static final int NOTIFICATION_ID = 1;
 
     /**
      * Starts this service to perform action Foo with the given parameters. If
@@ -88,9 +91,6 @@ public class GeoTrendsIntentService extends IntentService {
      * parameters.
      */
     private void handleActionQueryVisible() {
-        // TODO: Handle action Foo
-//        throw new UnsupportedOperationException("Not yet implemented");
-
         Log.d("geotrends_intentservice", "refresh all visible...");
 
         SettingsDatasourceHelper sdh = new SettingsDatasourceHelper(this);
@@ -99,17 +99,63 @@ public class GeoTrendsIntentService extends IntentService {
         sdh.close();
 
         final Thread workerThread = new Thread(new Runnable() {
+
+            final Map<RegionsEnum, List<Keyword>> keywordChanges = new HashMap<>();
             @Override
             public void run() {
 
                 for (RegionsEnum reg : visibleRegions) {
-                    regionalRefresh(reg.getCode());
+                    final List<Keyword> regKeywordsChanges =regionalRefresh(reg.getCode());
+                    if(!regKeywordsChanges.isEmpty())
+                    {
+                        keywordChanges.put(reg,regKeywordsChanges);
+                    }
                 }
+
+                sendNotification(keywordChanges);
             }
         });
         workerThread.start();
 
         System.out.println(visibleRegions);
+    }
+
+    private void sendNotification(Map<RegionsEnum, List<Keyword>> keywordChanges) {
+        final Set<RegionsEnum> regionsChanged = keywordChanges.keySet();
+        if(!regionsChanged.isEmpty())
+        {
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_notification_icon)
+                            .setContentTitle("New Kewwords")
+                            .setContentText(getNotificationText(regionsChanged));
+// Creates an explicit intent for an Activity in your app
+
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(this,
+                    PI_REQ_CODE, notificationIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+
+            mBuilder.setContentIntent(contentIntent);
+            mBuilder.setAutoCancel(true);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+// mId allows you to update the notification later on.
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        }
+    }
+
+    private CharSequence getNotificationText(Set<RegionsEnum> regionsChanged) {
+        StringBuilder sb = new StringBuilder("Changes in ");
+
+        for (RegionsEnum reg: regionsChanged) {
+            sb.append(reg.getPrintName());
+            sb.append(", ");
+        }
+
+        final String text = sb.substring(0, (sb.length() - 2));
+
+        return text;
     }
 
     /**
@@ -118,22 +164,22 @@ public class GeoTrendsIntentService extends IntentService {
      */
     private void handleActionQueryRegion(final int regionCode) {
 
+
         final Thread workerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 regionalRefresh(regionCode);
-
             }
         });
         workerThread.start();
     }
 
-    private void regionalRefresh(int regIntCode) {
+    private List<Keyword> regionalRefresh(int regIntCode) {
         RegionsEnum region = RegionsEnum.getRegionForCode(regIntCode);
 
         if (region == null) {
             Log.e("Region not found", "Region int code = " + regIntCode);
+            return null;
         } else {
             try {
 
@@ -142,9 +188,10 @@ public class GeoTrendsIntentService extends IntentService {
 
                 System.out.println(regionalTrending);
 
-                saveKeywordsToDatabase(regionalTrending);
-
+                final List<Keyword> regKeywordsChanges = saveKeywordsToDatabase(regionalTrending);
                 updateRefreshDate(region);
+
+                return regKeywordsChanges;
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -152,17 +199,20 @@ public class GeoTrendsIntentService extends IntentService {
                 Toast.makeText(GeoTrendsIntentService.this, "Error", Toast.LENGTH_SHORT).show();
             }
         }
+        return null;
     }
 
-    private synchronized void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
+    private List<Keyword> saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
 
         KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
         helper.open();
 
         helper.saveRegion(regionalTrending.getRegion());
-        helper.saveOrUpdateKeywords(regionalTrending);
+        final List<Keyword> newKeywords = helper.saveOrUpdateKeywords(regionalTrending);
 
         helper.close();
+
+        return newKeywords;
     }
 
     private void updateRefreshDate(RegionsEnum region) {
