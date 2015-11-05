@@ -43,6 +43,7 @@ import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.fragments.KeywordRecyclerViewFragment;
 import aks.geotrends.android.utils.RegionsEnum;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREFS_FILE = "googligencepref";
     private static final String REGIONS_SET = "regionsSet";
     private static final String CURRENT_REGION = "current_region";
+    private static final long REFRESH_PERIOD = 1000 * 60 * 30;
 
     private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
@@ -266,11 +268,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateViewPagerFragments() {
-        regions = fetchDisplayedRegionsFromSharedPrefrences();
+        regions = SharedPreferenceHelper.fetchDisplayedRegionsFromSharedPrefrences(this);
 
         setPagerAdapter();
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
         tabLayout.setupWithViewPager(viewPager);
+
+        SettingsDatasourceHelper settingsDatasourceHelper = new SettingsDatasourceHelper(this);
+        settingsDatasourceHelper.open();
+        settingsDatasourceHelper.updateVisibleRegions(adapter.getRegionList());
+        settingsDatasourceHelper.close();
     }
 
     private void openFeedbackForm() {
@@ -306,25 +313,6 @@ public class MainActivity extends AppCompatActivity {
         editor.putStringSet(REGIONS_SET, regCodeSet);
         editor.commit();
 
-    }
-
-    private List<RegionsEnum> fetchDisplayedRegionsFromSharedPrefrences() {
-
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
-        final Set<String> regionCodeSet = prefs.getStringSet(REGIONS_SET, null);
-
-        if (null == regionCodeSet || regionCodeSet.size() == 0) {
-            return null;
-        } else {
-            List<RegionsEnum> regionsList = new ArrayList<>();
-
-            for (String regCode : regionCodeSet) {
-
-                regionsList.add(RegionsEnum.getRegionByShortCode(regCode));
-            }
-
-            return regionsList;
-        }
     }
 
     private void startSelectRegionsActivity() {
@@ -364,8 +352,7 @@ public class MainActivity extends AppCompatActivity {
 
     //---------------------Pending intents for Auto Refresh-----------------
 
-    private void setUpPerioadicRefresh()
-    {
+    private void setUpPerioadicRefresh() {
 //        if(areIntentsScheduled())
 //        {
 //            cancellAllPendingIntents("aks.geotrends.android.action.query.visible");
@@ -377,9 +364,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent("aks.geotrends.android.action.query.visible");
         PendingIntent pendingIntent = PendingIntent.getService(this, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, 15);
 
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC, new Date().getTime(), 1000 * 10, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(), REFRESH_PERIOD, pendingIntent);
 
         Log.d("geotrends", "intents created");
     }
@@ -428,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 regionList = regions;
             }
-
+            MainActivity.this.regions = regions;
             System.out.println(regions);
         }
 

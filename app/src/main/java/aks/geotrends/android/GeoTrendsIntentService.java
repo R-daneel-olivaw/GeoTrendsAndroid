@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.db.Region;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
 import aks.geotrends.android.utils.RegionsEnum;
@@ -92,6 +93,23 @@ public class GeoTrendsIntentService extends IntentService {
 
         Log.d("geotrends_intentservice", "refresh all visible...");
 
+        SettingsDatasourceHelper sdh = new SettingsDatasourceHelper(this);
+        sdh.open();
+        final List<RegionsEnum> visibleRegions = sdh.getVisibleRegions();
+        sdh.close();
+
+        final Thread workerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                for (RegionsEnum reg : visibleRegions) {
+                    regionalRefresh(reg.getCode());
+                }
+            }
+        });
+        workerThread.start();
+
+        System.out.println(visibleRegions);
     }
 
     /**
@@ -136,7 +154,7 @@ public class GeoTrendsIntentService extends IntentService {
         }
     }
 
-    private void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
+    private synchronized void saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
 
         KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
         helper.open();

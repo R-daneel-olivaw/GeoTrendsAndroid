@@ -8,9 +8,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import aks.geotrends.android.utils.RegionsEnum;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 
 /**
  * Created by a77kumar on 2015-10-31.
@@ -113,6 +116,22 @@ public class SettingsDatasourceHelper {
         return rSettings;
     }
 
+    public List<RegionalSettings> getSettingsForAllRegions() {
+
+        RegionalSettings rSettings = null;
+        List<RegionalSettings> settings = new ArrayList<>();
+
+        Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONAL_SETTINGS, REGIONAL_SETTINGS_ALL_COLUMNS, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (cursor.moveToNext()) {
+            rSettings = getSettings(cursor);
+            settings.add(rSettings);
+        }
+        cursor.close();
+
+        return settings;
+    }
+
 
     public void updateRefreshedDate(RegionsEnum region, Date refreshedDate) {
 
@@ -140,6 +159,49 @@ public class SettingsDatasourceHelper {
         values.put(KeywordsSQLiteHelper.COLUMN_FAVORRITE, favorite);
         values.put(KeywordsSQLiteHelper.COLUMN_DISPLAYED_UI, displayed);
 
-        database.update(KeywordsSQLiteHelper.TABLE_REGIONAL_SETTINGS, values,"_id "+"="+settingsForRegion.getId(),null);
+        database.update(KeywordsSQLiteHelper.TABLE_REGIONAL_SETTINGS, values, "_id " + "=" + settingsForRegion.getId(), null);
+    }
+
+    public List<RegionsEnum> getVisibleRegions() {
+
+        List<RegionsEnum> regions = new ArrayList<>();
+
+        Cursor cursor = null;
+        try {
+            cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONAL_SETTINGS, REGIONAL_SETTINGS_ALL_COLUMNS,
+                    KeywordsSQLiteHelper.COLUMN_DISPLAYED_UI + " = '1'", null, null, null, null);
+
+            while (cursor.moveToNext()) {
+
+                final RegionalSettings settings = getSettings(cursor);
+                final String regionCode = settings.getRegionCode();
+
+                final RegionsEnum region = RegionsEnum.getRegionByShortCode(regionCode);
+                regions.add(region);
+            }
+        }finally {
+            cursor.close();
+        }
+        return regions;
+    }
+
+    public void updateVisibleRegions(List<RegionsEnum> regions) {
+
+        final List<RegionalSettings> settingsList = getSettingsForAllRegions();
+
+        for (RegionalSettings rSet : settingsList) {
+            final RegionsEnum region = RegionsEnum.getRegionByShortCode(rSet.getRegionCode());
+            if(regions.contains(region))
+            {
+                rSet.setIsDisplayed(true);
+            }
+            else
+            {
+                rSet.setIsDisplayed(false);
+            }
+
+            updateSettingsForRegion(rSet);
+        }
+
     }
 }
