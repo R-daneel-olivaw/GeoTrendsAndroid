@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import aks.geotrends.android.GeoTrendsService;
 import aks.geotrends.android.KeywordsRecyclerAdapter;
 import aks.geotrends.android.MainActivity;
 import aks.geotrends.android.R;
@@ -224,8 +223,8 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void refreshDatabase() {
 
-        Intent serviceIntent = new Intent(activity, GeoTrendsService.class);
-        serviceIntent.putExtra("reg", region.getCode());
+        Intent serviceIntent = new Intent("aks.geotrends.android.action.query.region");
+        serviceIntent.putExtra("aks.geotrends.android.extra.region", region.getCode());
         activity.startService(serviceIntent);
 
     }
