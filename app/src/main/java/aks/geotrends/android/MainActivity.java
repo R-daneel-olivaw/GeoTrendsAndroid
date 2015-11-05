@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
         Fragment fragment = fragmentWeakMap.get(region);
         if (fragment == null) {
-            fragment = KeywordRecyclerViewFragment.newInstance(region, position);
+            fragment = KeywordRecyclerViewFragment.newInstance(region);
             fragmentWeakMap.put(region, fragment);
         }
 

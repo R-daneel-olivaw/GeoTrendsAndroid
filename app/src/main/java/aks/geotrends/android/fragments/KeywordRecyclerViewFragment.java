@@ -68,25 +68,23 @@ public class KeywordRecyclerViewFragment extends Fragment {
         startActivity(intent);
     }
 
-    public static KeywordRecyclerViewFragment newInstance(RegionsEnum region, int sectionNumber) {
-        KeywordRecyclerViewFragment fragment = new KeywordRecyclerViewFragment(region);
+    public static KeywordRecyclerViewFragment newInstance(RegionsEnum region) {
+        KeywordRecyclerViewFragment fragment = new KeywordRecyclerViewFragment();
+        fragment.setRegion(region);
 
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
         return fragment;
     }
 
-    private KeywordRecyclerViewFragment(RegionsEnum region) {
-        this.region = region;
-    }
-
-    private KeywordRecyclerViewFragment() {
+    public KeywordRecyclerViewFragment() {
     }
 
     public RegionsEnum getRegion() {
         return region;
     }
+    public void setRegion(RegionsEnum region) {
+        this.region = region;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
