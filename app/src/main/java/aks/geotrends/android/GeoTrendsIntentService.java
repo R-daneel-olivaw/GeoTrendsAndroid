@@ -196,8 +196,7 @@ public class GeoTrendsIntentService extends IntentService {
 
             } catch (IOException e) {
                 e.printStackTrace();
-
-                Toast.makeText(GeoTrendsIntentService.this, "Error", Toast.LENGTH_SHORT).show();
+                Log.e("geotrends","intent service",e);
             }
         }
         return null;

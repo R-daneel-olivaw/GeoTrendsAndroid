@@ -76,7 +76,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void sendTrendsGraphIntentForKeyword(Keyword taggedKeyword) {
 
-        // http://www.google.com/trends/fetchComponent?hl=en-US&q=nepal&geo=IN&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=200
+        // http://www.google.com/trends/fetchComponent?hl=en-US&q=nepal&geo=IN&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=200&date=today%207-d
 
         String baseUrl = "http://www.google.com/trends/fetchComponent";
 
@@ -87,8 +87,9 @@ public class KeywordRecyclerViewFragment extends Fragment {
         params.add(new BasicNameValuePair("geo", region.getRegion()));
         params.add(new BasicNameValuePair("cid", "TIMESERIES_GRAPH_0"));
         params.add(new BasicNameValuePair("export", "5"));
-        params.add(new BasicNameValuePair("w", "500"));
+        params.add(new BasicNameValuePair("w", "1000"));
         params.add(new BasicNameValuePair("h", "200"));
+        params.add(new BasicNameValuePair("date", "today 1-d"));
 
         String paramString = URLEncodedUtils.format(params, "utf-8");
 
