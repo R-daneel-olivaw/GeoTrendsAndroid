@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREFS_FILE = "googligencepref";
     private static final String REGIONS_SET = "regionsSet";
     private static final String CURRENT_REGION = "current_region";
-    private static final long REFRESH_PERIOD = 1000 * 60;
+    private static final long REFRESH_PERIOD = 1000 * 60 * 30;
 
     private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getService(this, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE, 1);
+        cal.add(Calendar.MINUTE, 5);
 
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(), REFRESH_PERIOD, pendingIntent);
