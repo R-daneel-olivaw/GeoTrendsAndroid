@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREFS_FILE = "googligencepref";
     private static final String REGIONS_SET = "regionsSet";
     private static final String CURRENT_REGION = "current_region";
-    private static final long REFRESH_PERIOD = 1000 * 60 ;
+    private static final long REFRESH_PERIOD = 1000 * 60;
 
     private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 

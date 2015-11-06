@@ -1,11 +1,11 @@
 package aks.geotrends.android;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
@@ -101,14 +100,14 @@ public class GeoTrendsIntentService extends IntentService {
         final Thread workerThread = new Thread(new Runnable() {
 
             final Map<RegionsEnum, List<String>> keywordChanges = new HashMap<>();
+
             @Override
             public void run() {
 
                 for (RegionsEnum reg : visibleRegions) {
-                    final List<String> regKeywordsChanges =regionalRefresh(reg.getCode());
-                    if(!regKeywordsChanges.isEmpty())
-                    {
-                        keywordChanges.put(reg,regKeywordsChanges);
+                    final List<String> regKeywordsChanges = regionalRefresh(reg.getCode());
+                    if (!regKeywordsChanges.isEmpty()) {
+                        keywordChanges.put(reg, regKeywordsChanges);
                     }
                 }
 
@@ -123,19 +122,20 @@ public class GeoTrendsIntentService extends IntentService {
 
     private void sendNotification(Map<RegionsEnum, List<String>> keywordChanges) {
         final Set<RegionsEnum> regionsChanged = keywordChanges.keySet();
-        if(!regionsChanged.isEmpty())
-        {
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_notification_icon)
-                            .setContentTitle("New Kewwords")
-                            .setContentText(getNotificationText(regionsChanged));
-// Creates an explicit intent for an Activity in your app
+        if (!regionsChanged.isEmpty()) {
 
             Intent notificationIntent = new Intent(this, MainActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(this,
                     PI_REQ_CODE, notificationIntent,
                     PendingIntent.FLAG_CANCEL_CURRENT);
+
+            Notification.Builder mBuilder =
+                    new Notification.Builder(this)
+                            .setSmallIcon(R.drawable.ic_notification_icon)
+                            .setContentTitle("New Kewwords")
+                            .setStyle(new Notification.BigTextStyle()
+                                    .bigText(getNotificationText(regionsChanged)));
+// Creates an explicit intent for an Activity in your app
 
             mBuilder.setContentIntent(contentIntent);
             mBuilder.setAutoCancel(true);
@@ -149,7 +149,7 @@ public class GeoTrendsIntentService extends IntentService {
     private CharSequence getNotificationText(Set<RegionsEnum> regionsChanged) {
         StringBuilder sb = new StringBuilder("Changes in ");
 
-        for (RegionsEnum reg: regionsChanged) {
+        for (RegionsEnum reg : regionsChanged) {
             sb.append(reg.getPrintName());
             sb.append(", ");
         }
