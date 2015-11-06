@@ -61,7 +61,7 @@ public class KeywordsDataSourceHelper {
         return newKeyword;
     }
 
-    public List<Keyword> saveOrUpdateKeywords(JsonRegionalTrending regionalTrending) {
+    public List<String> saveOrUpdateKeywords(JsonRegionalTrending regionalTrending) {
         String regionShort = regionalTrending.getRegion().getRegion();
 
         final List<Keyword> oldKeywordsList = getKeywordsList(RegionsEnum.getRegionByShortCode(regionShort));
@@ -78,13 +78,27 @@ public class KeywordsDataSourceHelper {
             newKeywordsList.add(keyword);
         }
 
-        newKeywordsList.removeAll(oldKeywordsList);
+        List<String> oldKeywordsStr = convertToStringList(oldKeywordsList);
+        List<String> newKeywordsListStr = convertToStringList(newKeywordsList);
+
+        newKeywordsListStr.removeAll(oldKeywordsStr);
 
         // notify content observers
         Uri uri = Uri.parse(KEYWORDS_TABLE_URI);
         context.getContentResolver().notifyChange(uri, null);
 
-        return newKeywordsList;
+        return newKeywordsListStr;
+    }
+
+    private List<String> convertToStringList(List<Keyword> oldKeywordsList) {
+
+        List<String> strList = new ArrayList<>();
+
+        for (Keyword k: oldKeywordsList) {
+            strList.add(k.getKeyword());
+        }
+
+        return strList;
     }
 
     private void deleteAllKeywordsForRegion(String regionShort) {

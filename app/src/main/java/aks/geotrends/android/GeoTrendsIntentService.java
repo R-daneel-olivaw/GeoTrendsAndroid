@@ -100,18 +100,19 @@ public class GeoTrendsIntentService extends IntentService {
 
         final Thread workerThread = new Thread(new Runnable() {
 
-            final Map<RegionsEnum, List<Keyword>> keywordChanges = new HashMap<>();
+            final Map<RegionsEnum, List<String>> keywordChanges = new HashMap<>();
             @Override
             public void run() {
 
                 for (RegionsEnum reg : visibleRegions) {
-                    final List<Keyword> regKeywordsChanges =regionalRefresh(reg.getCode());
+                    final List<String> regKeywordsChanges =regionalRefresh(reg.getCode());
                     if(!regKeywordsChanges.isEmpty())
                     {
                         keywordChanges.put(reg,regKeywordsChanges);
                     }
                 }
 
+                System.out.println(keywordChanges);
                 sendNotification(keywordChanges);
             }
         });
@@ -120,7 +121,7 @@ public class GeoTrendsIntentService extends IntentService {
         System.out.println(visibleRegions);
     }
 
-    private void sendNotification(Map<RegionsEnum, List<Keyword>> keywordChanges) {
+    private void sendNotification(Map<RegionsEnum, List<String>> keywordChanges) {
         final Set<RegionsEnum> regionsChanged = keywordChanges.keySet();
         if(!regionsChanged.isEmpty())
         {
@@ -174,7 +175,7 @@ public class GeoTrendsIntentService extends IntentService {
         workerThread.start();
     }
 
-    private List<Keyword> regionalRefresh(int regIntCode) {
+    private List<String> regionalRefresh(int regIntCode) {
         RegionsEnum region = RegionsEnum.getRegionForCode(regIntCode);
 
         if (region == null) {
@@ -188,7 +189,7 @@ public class GeoTrendsIntentService extends IntentService {
 
                 System.out.println(regionalTrending);
 
-                final List<Keyword> regKeywordsChanges = saveKeywordsToDatabase(regionalTrending);
+                final List<String> regKeywordsChanges = saveKeywordsToDatabase(regionalTrending);
                 updateRefreshDate(region);
 
                 return regKeywordsChanges;
@@ -202,13 +203,13 @@ public class GeoTrendsIntentService extends IntentService {
         return null;
     }
 
-    private List<Keyword> saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
+    private List<String> saveKeywordsToDatabase(JsonRegionalTrending regionalTrending) {
 
         KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
         helper.open();
 
         helper.saveRegion(regionalTrending.getRegion());
-        final List<Keyword> newKeywords = helper.saveOrUpdateKeywords(regionalTrending);
+        final List<String> newKeywords = helper.saveOrUpdateKeywords(regionalTrending);
 
         helper.close();
 
