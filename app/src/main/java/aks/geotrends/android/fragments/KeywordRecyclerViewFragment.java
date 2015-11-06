@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -14,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -23,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import aks.geotrends.android.KeywordsRecyclerAdapter;
@@ -60,6 +65,42 @@ public class KeywordRecyclerViewFragment extends Fragment {
         }
     };
 
+    private View.OnClickListener graphClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            final Keyword taggedKeyword = (Keyword) v.getTag();
+            sendTrendsGraphIntentForKeyword(taggedKeyword);
+        }
+    };
+
+    private void sendTrendsGraphIntentForKeyword(Keyword taggedKeyword) {
+
+        // http://www.google.com/trends/fetchComponent?hl=en-US&q=nepal&geo=IN&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=200
+
+        String baseUrl = "http://www.google.com/trends/fetchComponent";
+
+        List<NameValuePair> params = new LinkedList<NameValuePair>();
+
+        params.add(new BasicNameValuePair("hl", "en-US"));
+        params.add(new BasicNameValuePair("q", taggedKeyword.getKeyword()));
+        params.add(new BasicNameValuePair("geo", region.getRegion()));
+        params.add(new BasicNameValuePair("cid", "TIMESERIES_GRAPH_0"));
+        params.add(new BasicNameValuePair("export", "5"));
+        params.add(new BasicNameValuePair("w", "500"));
+        params.add(new BasicNameValuePair("h", "200"));
+
+        String paramString = URLEncodedUtils.format(params, "utf-8");
+
+        String finalUrl = baseUrl + "?" + paramString;
+
+        System.out.println(finalUrl);
+
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(finalUrl));
+        startActivity(i);
+    }
+
     private void sendSearchIntentForKeyword(Keyword taggedKeyword) {
 
         String q = taggedKeyword.getKeyword();
@@ -81,6 +122,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
     public RegionsEnum getRegion() {
         return region;
     }
+
     public void setRegion(RegionsEnum region) {
         this.region = region;
     }
@@ -164,7 +206,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
         List<Keyword> keywords = getKeywordsFromCursor(c);
 
         keywordsHelper.close();
-        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener));
+        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener, graphClickListener));
     }
 
     @Override

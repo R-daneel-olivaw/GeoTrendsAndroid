@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
@@ -21,13 +22,15 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
     private static final String LT_1_HOUR = "< 1h";
 
     private List<Keyword> objects;
-    private View.OnClickListener clickHandler;
+    private View.OnClickListener infoClickHandler;
+    private View.OnClickListener graphButtonClickHandler;
 
     private PeriodFormatter daysHours = null;
 
-    public KeywordsRecyclerAdapter(List<Keyword> items, View.OnClickListener clickHandler) {
+    public KeywordsRecyclerAdapter(List<Keyword> items, View.OnClickListener infoClickHandler, View.OnClickListener graphButtonClickHandler) {
         objects = items;
-        this.clickHandler = clickHandler;
+        this.infoClickHandler = infoClickHandler;
+        this.graphButtonClickHandler = graphButtonClickHandler;
 
         daysHours = new PeriodFormatterBuilder().appendWeeks().appendSuffix("w").appendDays().appendSuffix("d").appendHours().appendSuffix("h").toFormatter();
     }
@@ -35,7 +38,6 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
-        v.setOnClickListener(clickHandler);
 
         return new ViewHolder(v);
     }
@@ -47,7 +49,11 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
         viewHolder.keyword.setText(keyword.getKeyword());
         viewHolder.date.setText(getDurationText(keyword));
 
-        viewHolder.getItemView().setTag(keyword);
+        viewHolder.getInfoView().setTag(keyword);
+        viewHolder.getGraphButton().setTag(keyword);
+
+        viewHolder.getInfoView().setOnClickListener(infoClickHandler);
+        viewHolder.getGraphButton().setOnClickListener(graphButtonClickHandler);
     }
 
     @Override
@@ -77,18 +83,24 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView keyword;
         private TextView date;
-        private View itemView;
+        private View infoView;
+        private ImageButton graphButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            this.itemView = itemView;
 
             keyword = (TextView) itemView.findViewById(R.id.tvKeyword);
             date = (TextView) itemView.findViewById(R.id.tvDuration);
+            infoView = (View) itemView.findViewById(R.id.infoSection);
+            graphButton = (ImageButton) itemView.findViewById(R.id.graph);
         }
 
-        public View getItemView() {
-            return itemView;
+        public View getInfoView() {
+            return infoView;
+        }
+
+        public ImageButton getGraphButton() {
+            return graphButton;
         }
     }
 
