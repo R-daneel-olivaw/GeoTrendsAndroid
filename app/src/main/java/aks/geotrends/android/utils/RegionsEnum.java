@@ -3,65 +3,69 @@ package aks.geotrends.android.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import aks.geotrends.android.R;
+
 public enum RegionsEnum {
 	
-	SouthAfrica("South Africa","ZA",40),
-	Germany("Germany","DE",15),
-	SaudiArabia("Saudi Arabia","SA",36),
-	Argentina("Argentina","AR",30),
-	Australia("Australia","AU",8),
-	Austria("Austria","AT",44),
-	Belgium("Belgium","BE",41),
-	Brazil("Brazil","BR",18),
-	Canada("Canada","CA",13),
-	Chile("Chile","CL",38),
-	Colombia("Colombia","CO",32),
-	SouthKorea("South Korea","KR",23),
-	Denmark("Denmark","DK",49),
-	Egypt("Egypt","EG",29),
-	Spain("Spain","ES",26),
-	UnitedStates("United States","US",1),
-	Finland("Finland","FI",50),
-	France("France","FR",16),
-	Greece("Greece","GR",48),
-	HongKong("Hong Kong","HK",10),
-	Hungary("Hungary","HU",45),
-	India("India","IN",3),
-	Indonesia("Indonesia","ID",19),
-	Israel("Israel","IL",6),
-	Italy("Italy","IT",27),
-	Japan("Japan","JP",4),
-	Kenya("Kenya","KE",37),
-	Malaysia("Malaysia","MY",34),
-	Mexico("Mexico","MX",21),
-	Nigeria("Nigeria","NG",52),
-	Norway("Norway","NO",51),
-	Netherlands("Netherlands","NL",17),
-	Philippines("Philippines","PH",25),
-	Poland("Poland","PL",31),
-	Portugal("Portugal","PT",47),
-	CzechRepublic("Czech Republic","CZ",43),
-	Romania("Romania","RO",39),
-	UnitedKingdom("United Kingdom","GB",9),
-	Russia("Russia","RU",14),
-	Singapore("Singapore","SG",5),
-	Sweden("Sweden","SE",42),
-	Switzerland("Switzerland","CH",46),
-	Taiwan("Taiwan","TW",12),
-	Thailand("Thailand","TH",33),
-	Turkey("Turkey","TR",24),
-	Ukraine("Ukraine","UA",35),
-	Vietnam("Vietnam","VN",28);
+	SouthAfrica("South Africa","ZA",40, R.drawable.ic_south_africa),
+	Germany("Germany","DE",15,R.drawable.ic_germany),
+	SaudiArabia("Saudi Arabia","SA",36,R.drawable.ic_saudi_arabia),
+	Argentina("Argentina","AR",30, R.drawable.ic_argentina),
+	Australia("Australia","AU",8, R.drawable.ic_australia),
+	Austria("Austria","AT",44,R.drawable.ic_austria),
+	Belgium("Belgium","BE",41,R.drawable.ic_belgium),
+	Brazil("Brazil","BR",18,R.drawable.ic_brazil),
+	Canada("Canada","CA",13,R.drawable.ic_canada),
+	Chile("Chile","CL",38,R.drawable.ic_chile),
+	Colombia("Colombia","CO",32,R.drawable.ic_colombia),
+	SouthKorea("South Korea","KR",23,R.drawable.ic_south_korea),
+	Denmark("Denmark","DK",49,R.drawable.ic_denmark),
+	Egypt("Egypt","EG",29,R.drawable.ic_egypt),
+	Spain("Spain","ES",26,R.drawable.ic_spain),
+	UnitedStates("United States","US",1,R.drawable.ic_united_states),
+	Finland("Finland","FI",50,R.drawable.ic_finland),
+	France("France","FR",16,R.drawable.ic_france),
+	Greece("Greece","GR",48,R.drawable.ic_greece),
+	HongKong("Hong Kong","HK",10,R.drawable.ic_hong_kong),
+	Hungary("Hungary","HU",45,R.drawable.ic_hungary),
+	India("India","IN",3,R.drawable.ic_india),
+	Indonesia("Indonesia","ID",19,R.drawable.ic_indonesia),
+	Israel("Israel","IL",6,R.drawable.ic_israel),
+	Italy("Italy","IT",27,R.drawable.ic_italy),
+	Japan("Japan","JP",4,R.drawable.ic_japan),
+	Kenya("Kenya","KE",37,R.drawable.ic_kenya),
+	Malaysia("Malaysia","MY",34,R.drawable.ic_malaysia),
+	Mexico("Mexico","MX",21,R.drawable.ic_mexico),
+	Nigeria("Nigeria","NG",52,R.drawable.ic_nigeria),
+	Norway("Norway","NO",51,R.drawable.ic_norway),
+	Netherlands("Netherlands","NL",17,R.drawable.ic_netherlands),
+	Philippines("Philippines","PH",25,R.drawable.ic_philippines),
+	Poland("Poland","PL",31,R.drawable.ic_poland),
+	Portugal("Portugal","PT",47,R.drawable.ic_portugal),
+	CzechRepublic("Czech Republic","CZ",43,R.drawable.ic_czech_republic),
+	Romania("Romania","RO",39,R.drawable.ic_romania),
+	UnitedKingdom("United Kingdom","GB",9,R.drawable.ic_united_kingdom),
+	Russia("Russia","RU",14,R.drawable.ic_russia),
+	Singapore("Singapore","SG",5,R.drawable.ic_singapore),
+	Sweden("Sweden","SE",42,R.drawable.ic_sweden),
+	Switzerland("Switzerland","CH",46,R.drawable.ic_switzerland),
+	Taiwan("Taiwan","TW",12,R.drawable.ic_taiwan),
+	Thailand("Thailand","TH",33,R.drawable.ic_thailand),
+	Turkey("Turkey","TR",24,R.drawable.ic_turkey),
+	Ukraine("Ukraine","UA",35,R.drawable.ic_ukraine),
+	Vietnam("Vietnam","VN",28,R.drawable.ic_vietnam);
 	
 	private String printName;
 	private String region;
 	private int code;
+	private int flag;
 	
 	private static Map<Integer, RegionsEnum> regionIntegerCodeMap = null;
 	private static Map<String, RegionsEnum> regionShortCodeMap = null;
 	
-	private RegionsEnum(String printName, String region, int code)
+	private RegionsEnum(String printName, String region, int code,int flag)
 	{
+		this.flag = flag;
 		this.setPrintName(printName);
 		this.region = region;
 		this.code = code;		
@@ -125,4 +129,7 @@ public enum RegionsEnum {
 		}
 	}
 
+	public int getFlag() {
+		return flag;
+	}
 }

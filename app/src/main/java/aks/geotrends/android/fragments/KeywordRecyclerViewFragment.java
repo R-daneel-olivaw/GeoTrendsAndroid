@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +13,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,16 +27,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
-import aks.geotrends.android.GeoTrendsService;
 import aks.geotrends.android.KeywordsRecyclerAdapter;
 import aks.geotrends.android.MainActivity;
 import aks.geotrends.android.R;
 import aks.geotrends.android.db.Keyword;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.KeywordsSQLiteHelper;
+import aks.geotrends.android.db.RegionalSettings;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.utils.DividerItemDecoration;
+import aks.geotrends.android.utils.DurationFormatter;
 import aks.geotrends.android.utils.RegionsEnum;
 
 public class KeywordRecyclerViewFragment extends Fragment {
@@ -40,8 +51,10 @@ public class KeywordRecyclerViewFragment extends Fragment {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
     private View view;
     private MainActivity activity;
-    private KeywordsDataSourceHelper helper;
+    private KeywordsDataSourceHelper keywordsHelper;
+    private SettingsDatasourceHelper regionSettingsHelper;
     private RecyclerView recyclerView;
+    private TextView refreshDuration;
 
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -52,6 +65,43 @@ public class KeywordRecyclerViewFragment extends Fragment {
         }
     };
 
+    private View.OnClickListener graphClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            final Keyword taggedKeyword = (Keyword) v.getTag();
+            sendTrendsGraphIntentForKeyword(taggedKeyword);
+        }
+    };
+
+    private void sendTrendsGraphIntentForKeyword(Keyword taggedKeyword) {
+
+        // http://www.google.com/trends/fetchComponent?hl=en-US&q=nepal&geo=IN&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=200&date=today%207-d
+
+        String baseUrl = "http://www.google.com/trends/fetchComponent";
+
+        List<NameValuePair> params = new LinkedList<NameValuePair>();
+
+        params.add(new BasicNameValuePair("hl", "en-US"));
+        params.add(new BasicNameValuePair("q", taggedKeyword.getKeyword()));
+        params.add(new BasicNameValuePair("geo", region.getRegion()));
+        params.add(new BasicNameValuePair("cid", "TIMESERIES_GRAPH_0"));
+        params.add(new BasicNameValuePair("export", "5"));
+        params.add(new BasicNameValuePair("w", "1000"));
+        params.add(new BasicNameValuePair("h", "200"));
+        params.add(new BasicNameValuePair("date", "today 3-d"));
+
+        String paramString = URLEncodedUtils.format(params, "utf-8");
+
+        String finalUrl = baseUrl + "?" + paramString;
+
+        System.out.println(finalUrl);
+
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(finalUrl));
+        startActivity(i);
+    }
+
     private void sendSearchIntentForKeyword(Keyword taggedKeyword) {
 
         String q = taggedKeyword.getKeyword();
@@ -60,25 +110,24 @@ public class KeywordRecyclerViewFragment extends Fragment {
         startActivity(intent);
     }
 
-    public static KeywordRecyclerViewFragment newInstance(RegionsEnum region, int sectionNumber) {
-        KeywordRecyclerViewFragment fragment = new KeywordRecyclerViewFragment(region);
+    public static KeywordRecyclerViewFragment newInstance(RegionsEnum region) {
+        KeywordRecyclerViewFragment fragment = new KeywordRecyclerViewFragment();
+        fragment.setRegion(region);
 
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
         return fragment;
     }
 
-    private KeywordRecyclerViewFragment(RegionsEnum region) {
-        this.region = region;
-    }
-
-    private KeywordRecyclerViewFragment() {
+    public KeywordRecyclerViewFragment() {
     }
 
     public RegionsEnum getRegion() {
         return region;
     }
+
+    public void setRegion(RegionsEnum region) {
+        this.region = region;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,22 +138,45 @@ public class KeywordRecyclerViewFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        refreshDuration = (TextView) view.findViewById(R.id.time_since_last_refresh);
+
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        helper = new KeywordsDataSourceHelper(activity);
-        helper.open();
+        keywordsHelper = new KeywordsDataSourceHelper(activity);
+        regionSettingsHelper = new SettingsDatasourceHelper(activity);
+
         populateRecyclerView();
+    }
+
+    private void updateLastRefreshedDate() {
+
+        regionSettingsHelper.open();
+        final RegionalSettings regionalSettings = regionSettingsHelper.getSettingsForRegion(region);
+        regionSettingsHelper.close();
+
+        final Date lastRefreshDate = regionalSettings.getRefreshDate();
+
+        final DurationFormatter dFormatter = DurationFormatter.getInstance();
+        final String formattedInterval = dFormatter.formatInterval(new Interval(new DateTime(lastRefreshDate), DateTime.now()));
+
+        // Check if the string contains any digits, if it doesnt it is probably saying 'just now'
+        if (formattedInterval.matches(".*\\d+.*")) {
+            refreshDuration.setText("refreshed ~" + formattedInterval + " ago");
+        } else {
+            refreshDuration.setText("refreshed " + formattedInterval);
+        }
+
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        helper.close();
-        helper = null;
+        keywordsHelper = null;
     }
 
     public void startDelayedRefresh() {
@@ -125,6 +197,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void populateRecyclerView() {
 
+        keywordsHelper.open();
         Cursor c = getDataCursor();
 
         if (c.getCount() == 0) {
@@ -132,7 +205,9 @@ public class KeywordRecyclerViewFragment extends Fragment {
         }
 
         List<Keyword> keywords = getKeywordsFromCursor(c);
-        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener));
+
+        keywordsHelper.close();
+        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener, graphClickListener));
     }
 
     @Override
@@ -142,6 +217,13 @@ public class KeywordRecyclerViewFragment extends Fragment {
         this.activity = (MainActivity) activity;
 //		(this.activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateLastRefreshedDate();
     }
 
     private List<Keyword> getKeywordsFromCursor(Cursor cursor) {
@@ -182,15 +264,15 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void refreshDatabase() {
 
-        Intent serviceIntent = new Intent(activity, GeoTrendsService.class);
-        serviceIntent.putExtra("reg", region.getCode());
+        Intent serviceIntent = new Intent("aks.geotrends.android.action.query.region");
+        serviceIntent.putExtra("aks.geotrends.android.extra.region", region.getCode());
         activity.startService(serviceIntent);
 
     }
 
     private Cursor getDataCursor() {
 
-        Cursor c = helper.getKeywords(region);
+        Cursor c = keywordsHelper.getKeywordsCursor(region);
 
         return c;
     }
@@ -201,19 +283,20 @@ public class KeywordRecyclerViewFragment extends Fragment {
         public int compare(Keyword lhs, Keyword rhs) {
 
             if (lhs.getSortingDate().before(rhs.getSortingDate())) {
-                return -1;
+                return 1;
             } else if (lhs.getSortingDate().equals(rhs.getSortingDate())) {
                 return 0;
             }
 
-            return 1;
+            return -1;
         }
 
     }
 
     public void databaseContentsChanged() {
-        if (null != helper) {
+        if (null != keywordsHelper) {
             populateRecyclerView();
+            updateLastRefreshedDate();
         }
     }
 }

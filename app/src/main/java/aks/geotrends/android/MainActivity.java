@@ -1,6 +1,9 @@
 package aks.geotrends.android;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,15 +32,19 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
+import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.fragments.KeywordRecyclerViewFragment;
 import aks.geotrends.android.utils.RegionsEnum;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREFS_FILE = "googligencepref";
     private static final String REGIONS_SET = "regionsSet";
     private static final String CURRENT_REGION = "current_region";
+    private static final long REFRESH_PERIOD = 1000 * 60 * 30;
 
     private final WeakHashMap<RegionsEnum, Fragment> fragmentWeakMap = new WeakHashMap<RegionsEnum, Fragment>();
 
@@ -55,11 +64,17 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isVewPagerRefreshNeeded = false;
     private TabLayout tabLayout;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SettingsDatasourceHelper settingsHelper = new SettingsDatasourceHelper(this);
+        settingsHelper.open();
+        settingsHelper.ensureAllRegions();
+        settingsHelper.close();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,18 +109,34 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshDatabase();
 
-                Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_LONG).setAction("Close", new View.OnClickListener() {
+                snackbar = Snackbar.make(findViewById(R.id.coordinator), "Refreshing list ..", Snackbar.LENGTH_INDEFINITE).setAction("Close", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//						Toast.makeText(MainActivity.this, "Snackbar Action", Toast.LENGTH_LONG).show();
+                        snackbar.dismiss();
                     }
-                }).show();
+                });
+
+                snackbar.show();
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (null != snackbar) {
+                            snackbar.dismiss();
+                        }
+
+                    }
+                }, 5000);
             }
         });
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         populateViewPagerFragments();
+
+        setUpPerioadicRefresh();
     }
 
     @Override
@@ -122,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
         if (null != region) {
             tryToSwitchToRegion(region);
         }
+
+        cancelNotifications();
     }
 
     @Override
@@ -215,6 +248,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void cancelNotifications() {
+        // Clear all notification
+        NotificationManager nMgr = (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+        nMgr.cancelAll();
+    }
+
     private RegionsEnum fetchCurrentRegionFromSharedPref() {
         SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
         final String regionCode = prefs.getString(CURRENT_REGION, null);
@@ -238,11 +277,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateViewPagerFragments() {
-        regions = fetchDisplayedRegionsFromSharedPrefrences();
+        regions = SharedPreferenceHelper.fetchDisplayedRegionsFromSharedPrefrences(this);
 
         setPagerAdapter();
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
         tabLayout.setupWithViewPager(viewPager);
+
+        SettingsDatasourceHelper settingsDatasourceHelper = new SettingsDatasourceHelper(this);
+        settingsDatasourceHelper.open();
+        settingsDatasourceHelper.updateVisibleRegions(adapter.getRegionList());
+        settingsDatasourceHelper.close();
     }
 
     private void openFeedbackForm() {
@@ -280,25 +324,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private List<RegionsEnum> fetchDisplayedRegionsFromSharedPrefrences() {
-
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE);
-        final Set<String> regionCodeSet = prefs.getStringSet(REGIONS_SET, null);
-
-        if (null == regionCodeSet || regionCodeSet.size() == 0) {
-            return null;
-        } else {
-            List<RegionsEnum> regionsList = new ArrayList<>();
-
-            for (String regCode : regionCodeSet) {
-
-                regionsList.add(RegionsEnum.getRegionByShortCode(regCode));
-            }
-
-            return regionsList;
-        }
-    }
-
     private void startSelectRegionsActivity() {
 
         final List<RegionsEnum> regionsEnumList = adapter.getRegionList();
@@ -317,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment getFragmentForRegion(RegionsEnum region, int position) {
         Fragment fragment = fragmentWeakMap.get(region);
         if (fragment == null) {
-            fragment = KeywordRecyclerViewFragment.newInstance(region, position);
+            fragment = KeywordRecyclerViewFragment.newInstance(region);
             fragmentWeakMap.put(region, fragment);
         }
 
@@ -333,6 +358,54 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    //---------------------Pending intents for Auto Refresh-----------------
+
+    private void setUpPerioadicRefresh() {
+//        if(areIntentsScheduled())
+//        {
+//            cancellAllPendingIntents("aks.geotrends.android.action.query.visible");
+//        }
+        startScheduledIntents();
+    }
+
+    private void startScheduledIntents() {
+        Intent intent = new Intent("aks.geotrends.android.action.query.visible");
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, 5);
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(), REFRESH_PERIOD, pendingIntent);
+
+        Log.d("geotrends", "intents created");
+    }
+
+    private boolean areIntentsScheduled() {
+        boolean intentsUp = (PendingIntent.getBroadcast(this, 0,
+                new Intent("aks.geotrends.android.action.query.visible"),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        if (intentsUp) {
+            Log.d("geotrends", "intents are already active");
+        }
+
+        return intentsUp;
+    }
+
+    private void cancellAllPendingIntents(String action) {
+        Intent intent = new Intent(action);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+
+        Log.d("geotrends", "intents cancelled");
+    }
+
+    //---------------------Pending intents for Auto Refresh-----------------
 
     private class RegionsPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -353,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 regionList = regions;
             }
-
+            MainActivity.this.regions = regions;
             System.out.println(regions);
         }
 
@@ -426,6 +499,9 @@ public class MainActivity extends AppCompatActivity {
             // Handle change.
 
             System.out.println("CONTENT CHANGED !!!!!");
+            if (null != snackbar) {
+                snackbar.dismiss();
+            }
 
             final Collection<Fragment> fragmentCollection = fragmentWeakMap.values();
             for (Fragment f : fragmentCollection) {
