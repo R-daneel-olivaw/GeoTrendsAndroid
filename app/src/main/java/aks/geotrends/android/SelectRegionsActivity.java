@@ -57,7 +57,7 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
         regionsRecyclerView = (RecyclerView) findViewById(R.id.regionsRecyclerView);
         regionsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        regionsRecyclerView.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
+        //regionsRecyclerView.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
         regionsRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
@@ -162,10 +162,12 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
         private final TextView regionName;
         private final CheckBox checkBox;
+        private View itemView;
 
         public RegionViewHolder(View itemView) {
             super(itemView);
 
+            this.itemView = itemView;
             regionName = (TextView) itemView.findViewById(R.id.regionName);
             checkBox = (CheckBox) itemView.findViewById(R.id.regionCheckBox);
         }
@@ -175,11 +177,11 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             checkBox.setChecked(model.isChecked());
 
             checkBox.setTag(model);
+            itemView.setTag(model);
         }
 
-        public void setCheckboxListner(CompoundButton.OnCheckedChangeListener onCheckedChangeListener) {
-
-            checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+        public View getItemView() {
+            return itemView;
         }
     }
 
@@ -201,6 +203,22 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             }
         };
 
+        private View.OnClickListener itemListner = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RegionModel rm = (RegionModel) v.getTag();
+                CheckBox checkBox = (CheckBox) v.findViewById(R.id.regionCheckBox);
+
+                if (rm.isChecked()) {
+                    rm.setChecked(false);
+                    checkBox.setChecked(false);
+                } else {
+                    rm.setChecked(true);
+                    checkBox.setChecked(true);
+                }
+            }
+        };
+
         public RegionsAdapter(Context context, List<RegionModel> models) {
             mInflater = LayoutInflater.from(context);
             mModels = new ArrayList<>(models);
@@ -216,7 +234,10 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         public void onBindViewHolder(RegionViewHolder holder, int position) {
             final RegionModel model = mModels.get(position);
             holder.bind(model);
+
             holder.checkBox.setOnClickListener(checkBoxListner);
+            holder.getItemView().setOnClickListener(itemListner);
+
             holder.checkBox.setChecked(model.isChecked);
         }
 

@@ -2,6 +2,7 @@ package aks.geotrends.android;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -152,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
         if (null != region) {
             tryToSwitchToRegion(region);
         }
+
+        cancelNotifications();
     }
 
     @Override
@@ -243,6 +246,12 @@ public class MainActivity extends AppCompatActivity {
 
             tabLayout.getTabAt(wantedPosition).select();
         }
+    }
+
+    private void cancelNotifications() {
+        // Clear all notification
+        NotificationManager nMgr = (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+        nMgr.cancelAll();
     }
 
     private RegionsEnum fetchCurrentRegionFromSharedPref() {
