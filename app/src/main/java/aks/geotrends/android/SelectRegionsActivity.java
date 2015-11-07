@@ -17,15 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import aks.geotrends.android.utils.DividerItemDecoration;
 import aks.geotrends.android.utils.RegionsEnum;
 
 public class SelectRegionsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
@@ -161,7 +159,7 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
     public class RegionViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView regionName;
-        private final CheckBox checkBox;
+        private final ImageView flagHolder;
         private View itemView;
 
         public RegionViewHolder(View itemView) {
@@ -169,19 +167,22 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
 
             this.itemView = itemView;
             regionName = (TextView) itemView.findViewById(R.id.regionName);
-            checkBox = (CheckBox) itemView.findViewById(R.id.regionCheckBox);
+            flagHolder = (ImageView) itemView.findViewById(R.id.flag);
         }
 
         public void bind(RegionModel model) {
             regionName.setText(model.getRegionName());
-            checkBox.setChecked(model.isChecked());
+            flagHolder.setImageResource(model.getRegionObject().getFlag());
 
-            checkBox.setTag(model);
             itemView.setTag(model);
         }
 
         public View getItemView() {
             return itemView;
+        }
+
+        public ImageView getFlagHolder() {
+            return flagHolder;
         }
     }
 
@@ -190,31 +191,18 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         private final LayoutInflater mInflater;
         private List<RegionModel> mModels;
 
-        private View.OnClickListener checkBoxListner = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RegionModel rm = (RegionModel) v.getTag();
-
-                if (rm.isChecked()) {
-                    rm.setChecked(false);
-                } else {
-                    rm.setChecked(true);
-                }
-            }
-        };
-
         private View.OnClickListener itemListner = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 RegionModel rm = (RegionModel) v.getTag();
-                CheckBox checkBox = (CheckBox) v.findViewById(R.id.regionCheckBox);
 
                 if (rm.isChecked()) {
                     rm.setChecked(false);
-                    checkBox.setChecked(false);
+                    v.setSelected(false);
                 } else {
                     rm.setChecked(true);
-                    checkBox.setChecked(true);
+                    ;
+                    v.setSelected(true);
                 }
             }
         };
@@ -235,10 +223,8 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
             final RegionModel model = mModels.get(position);
             holder.bind(model);
 
-            holder.checkBox.setOnClickListener(checkBoxListner);
             holder.getItemView().setOnClickListener(itemListner);
-
-            holder.checkBox.setChecked(model.isChecked);
+            holder.getItemView().setSelected(model.isChecked);
         }
 
         @Override

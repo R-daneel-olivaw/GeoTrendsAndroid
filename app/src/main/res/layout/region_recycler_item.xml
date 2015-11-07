@@ -8,20 +8,13 @@
     android:focusable="true"
     android:padding="2dp">
 
-    <CheckBox
-        android:id="@+id/regionCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:padding="8dp" />
-
     <TextView
         android:id="@+id/regionName"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:padding="8dp"
+        android:padding="2dp"
         android:text="test text" />
 
     <ImageView
