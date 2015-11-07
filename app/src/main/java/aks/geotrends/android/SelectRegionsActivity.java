@@ -41,7 +41,6 @@ public class SelectRegionsActivity extends AppCompatActivity implements SearchVi
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(R.drawable.ic_done);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
