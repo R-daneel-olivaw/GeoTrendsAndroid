@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.action_settings:
+                startSettingsActivity();
                 return true;
             case R.id.action_select_regions:
                 startSelectRegionsActivity();
@@ -236,6 +237,11 @@ public class MainActivity extends AppCompatActivity {
         if (isVewPagerRefreshNeeded) {
             populateViewPagerFragments();
         }
+    }
+
+    private void startSettingsActivity() {
+        final Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     private void tryToSwitchToRegion(RegionsEnum region) {
