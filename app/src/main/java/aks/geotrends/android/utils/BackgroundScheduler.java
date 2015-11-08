@@ -1,5 +1,6 @@
 package aks.geotrends.android.utils;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -48,8 +49,8 @@ public class BackgroundScheduler {
         return intentsUp;
     }
 
-    private static void cancellAllPendingIntents(String action, Context context) {
-        Intent intent = new Intent(action);
+    private static void cancellAllPendingIntents(Context context) {
+        Intent intent = new Intent("aks.geotrends.android.action.query.visible");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -57,5 +58,9 @@ public class BackgroundScheduler {
         alarmManager.cancel(pendingIntent);
 
         Log.d("geotrends", "intents cancelled");
+    }
+
+    public static void cancelAutoSync(Context context) {
+        cancellAllPendingIntents(context);
     }
 }

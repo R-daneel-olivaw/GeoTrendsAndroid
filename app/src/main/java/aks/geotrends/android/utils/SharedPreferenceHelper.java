@@ -45,4 +45,12 @@ public class SharedPreferenceHelper {
 
         return sync_frequency;
     }
+
+    public static boolean isAutoSyncEnabled(Context context) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final boolean sync = prefs.getBoolean("background_sync", true);
+
+        return sync;
+    }
 }

@@ -12,12 +12,14 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
 import aks.geotrends.android.R;
 import aks.geotrends.android.SettingsActivity;
 import aks.geotrends.android.utils.BackgroundScheduler;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 
 /**
  * This fragment shows data and sync preferences only. It is used when the
@@ -35,8 +37,11 @@ public class DataSyncPreferenceFragment extends PreferenceFragment {
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        final Preference preference = findPreference("sync_frequency");
-        bindPreferenceSummaryToValue(preference);
+        final Preference sync_frequency = findPreference("sync_frequency");
+        final Preference background_sync = findPreference("background_sync");
+
+        bindPreferenceSummaryToValue(sync_frequency);
+        bindPreferenceSummaryToValue(background_sync);
     }
 
     @Override
@@ -59,6 +64,18 @@ public class DataSyncPreferenceFragment extends PreferenceFragment {
                 case "sync_frequency":
                     System.out.println("Sync frequency changed");
                     BackgroundScheduler.reScheduleSync(getActivity());
+                    break;
+
+                case "background_sync":
+                    System.out.println("auto sync changed");
+                    boolean canAutoSync = SharedPreferenceHelper.isAutoSyncEnabled(getActivity());
+
+                    if (!canAutoSync) {
+                        BackgroundScheduler.cancelAutoSync(getActivity());
+                    } else {
+                        BackgroundScheduler.reScheduleSync(getActivity());
+                    }
+
                     break;
             }
 
@@ -111,9 +128,16 @@ public class DataSyncPreferenceFragment extends PreferenceFragment {
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        if (preference instanceof SwitchPreference) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getBoolean(preference.getKey(), true));
+        } else {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
     }
 }
