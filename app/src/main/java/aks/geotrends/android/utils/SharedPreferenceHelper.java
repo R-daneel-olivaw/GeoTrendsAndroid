@@ -2,6 +2,7 @@ package aks.geotrends.android.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,5 +34,15 @@ public class SharedPreferenceHelper {
 
             return regionsList;
         }
+    }
+
+    public static int getSyncPeriodMinutes(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        final String syncFrequencyString = prefs.getString("sync_frequency", "30");
+        final int sync_frequency = Integer.parseInt(syncFrequencyString);
+
+        return sync_frequency;
     }
 }

@@ -43,6 +43,7 @@ import java.util.WeakHashMap;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.fragments.KeywordRecyclerViewFragment;
+import aks.geotrends.android.utils.BackgroundScheduler;
 import aks.geotrends.android.utils.RegionsEnum;
 import aks.geotrends.android.utils.SharedPreferenceHelper;
 
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         populateViewPagerFragments();
 
-        setUpPerioadicRefresh();
+        BackgroundScheduler.reScheduleSync(this);
     }
 
     @Override
@@ -364,54 +365,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-    //---------------------Pending intents for Auto Refresh-----------------
-
-    private void setUpPerioadicRefresh() {
-//        if(areIntentsScheduled())
-//        {
-//            cancellAllPendingIntents("aks.geotrends.android.action.query.visible");
-//        }
-        startScheduledIntents();
-    }
-
-    private void startScheduledIntents() {
-        Intent intent = new Intent("aks.geotrends.android.action.query.visible");
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE, 5);
-
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(), REFRESH_PERIOD, pendingIntent);
-
-        Log.d("geotrends", "intents created");
-    }
-
-    private boolean areIntentsScheduled() {
-        boolean intentsUp = (PendingIntent.getBroadcast(this, 0,
-                new Intent("aks.geotrends.android.action.query.visible"),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        if (intentsUp) {
-            Log.d("geotrends", "intents are already active");
-        }
-
-        return intentsUp;
-    }
-
-    private void cancellAllPendingIntents(String action) {
-        Intent intent = new Intent(action);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-
-        Log.d("geotrends", "intents cancelled");
-    }
-
-    //---------------------Pending intents for Auto Refresh-----------------
 
     private class RegionsPagerAdapter extends FragmentStatePagerAdapter {
 
