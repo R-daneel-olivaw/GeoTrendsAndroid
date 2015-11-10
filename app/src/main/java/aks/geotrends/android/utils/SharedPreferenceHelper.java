@@ -2,6 +2,7 @@ package aks.geotrends.android.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
@@ -52,5 +53,34 @@ public class SharedPreferenceHelper {
         final boolean sync = prefs.getBoolean("background_sync", true);
 
         return sync;
+    }
+
+    public static boolean isNotificationEnabled(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final boolean notification = prefs.getBoolean("notifications_enabled", true);
+
+        return notification;
+    }
+
+    public static boolean isVibrationEnabled(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final boolean vibrate = prefs.getBoolean("notifications_vibrate", true);
+
+        return vibrate;
+    }
+
+    public static Uri getRingtone(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final String ringtone = prefs.getString("notifications_new_message_ringtone", null);
+        if(null==ringtone)
+        {
+            return null;
+        }
+        final Uri ringtoneUri = Uri.parse(ringtone);
+
+        return ringtoneUri;
     }
 }

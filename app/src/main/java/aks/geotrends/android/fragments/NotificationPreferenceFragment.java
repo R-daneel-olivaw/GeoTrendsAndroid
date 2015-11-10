@@ -55,12 +55,11 @@ public class NotificationPreferenceFragment extends PreferenceFragment {
             String stringValue = value.toString();
             final String key = preference.getKey();
 
-            switch (key) {
-                case "sync_frequency":
-                    System.out.println("Sync frequency changed");
-                    BackgroundScheduler.reScheduleSync(getActivity());
+/*            switch (key) {
+                case "notifications_new_message":
+                    System.out.println("notification status changed");
                     break;
-            }
+            }*/
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in

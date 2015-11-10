@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="aks.geotrends.android"
-    android:versionCode="14"
-    android:versionName="1.0915" >
+    android:versionCode="16"
+    android:versionName="1.0917" >
 
     <uses-sdk
         android:minSdkVersion="16"

@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
 import aks.geotrends.android.utils.RegionsEnum;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 import aks.geotrends.android.utils.WebserviceHelper;
 
 /**
@@ -121,6 +123,12 @@ public class GeoTrendsIntentService extends IntentService {
     }
 
     private void sendNotification(Map<RegionsEnum, List<String>> keywordChanges) {
+
+        if (!SharedPreferenceHelper.isNotificationEnabled(this)) {
+            Log.i("geotrends", "Cannot notify as notification is disabled");
+            return;
+        }
+
         final Set<RegionsEnum> regionsChanged = keywordChanges.keySet();
         if (!regionsChanged.isEmpty()) {
 
@@ -135,13 +143,24 @@ public class GeoTrendsIntentService extends IntentService {
                             .setContentTitle("New Kewwords")
                             .setStyle(new Notification.BigTextStyle()
                                     .bigText(getNotificationText(regionsChanged)));
-// Creates an explicit intent for an Activity in your app
+            // Creates an explicit intent for an Activity in your app
 
             mBuilder.setContentIntent(contentIntent);
             mBuilder.setAutoCancel(true);
+
+            if (SharedPreferenceHelper.isVibrationEnabled(this)) {
+                mBuilder.setVibrate(new long[]{1000, 1000});
+            }
+
+            final Uri ringtoneUri = SharedPreferenceHelper.getRingtone(this);
+            if(null!=ringtoneUri)
+            {
+                mBuilder.setSound(ringtoneUri);
+            }
+
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-// mId allows you to update the notification later on.
+            // mId allows you to update the notification later on.
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }
@@ -196,7 +215,7 @@ public class GeoTrendsIntentService extends IntentService {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e("geotrends","intent service",e);
+                Log.e("geotrends", "intent service", e);
             }
         }
         return null;

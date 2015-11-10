@@ -5,21 +5,22 @@
 
     <item
         android:id="@+id/action_select_regions"
-        android:icon="@drawable/ic_action_edit_regions"
+        android:icon="@drawable/ic_language_white_24dp"
         android:orderInCategory="100"
         android:title="@string/select"
         app:showAsAction="ifRoom" />
 
     <!--<item-->
-        <!--android:id="@+id/action_reorder"-->
-        <!--android:icon="@drawable/ic_action_reorder_regions"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:title="@string/reorder"-->
-        <!--app:showAsAction="ifRoom" />-->
+    <!--android:id="@+id/action_reorder"-->
+    <!--android:icon="@drawable/ic_action_reorder_regions"-->
+    <!--android:orderInCategory="100"-->
+    <!--android:title="@string/reorder"-->
+    <!--app:showAsAction="ifRoom" />-->
 
     <item
         android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings_applications_white_24dp"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>
