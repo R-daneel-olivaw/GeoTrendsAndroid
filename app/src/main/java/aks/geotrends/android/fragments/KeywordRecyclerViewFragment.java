@@ -89,7 +89,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
         params.add(new BasicNameValuePair("export", "5"));
         params.add(new BasicNameValuePair("w", "1000"));
         params.add(new BasicNameValuePair("h", "200"));
-        params.add(new BasicNameValuePair("date", "today 3-d"));
+        params.add(new BasicNameValuePair("date", "today 2-d"));
 
         String paramString = URLEncodedUtils.format(params, "utf-8");
 
