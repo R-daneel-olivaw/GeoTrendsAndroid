@@ -140,7 +140,7 @@ public class GeoTrendsIntentService extends IntentService {
             Notification.Builder mBuilder =
                     new Notification.Builder(this)
                             .setSmallIcon(R.drawable.ic_notification_icon)
-                            .setContentTitle("New Kewwords")
+                            .setContentTitle(getString(R.string.new_keywords))
                             .setStyle(new Notification.BigTextStyle()
                                     .bigText(getNotificationText(regionsChanged)));
             // Creates an explicit intent for an Activity in your app
@@ -166,7 +166,7 @@ public class GeoTrendsIntentService extends IntentService {
     }
 
     private CharSequence getNotificationText(Set<RegionsEnum> regionsChanged) {
-        StringBuilder sb = new StringBuilder("Changes in ");
+        StringBuilder sb = new StringBuilder(getString(R.string.changes_in));
 
         for (RegionsEnum reg : regionsChanged) {
             sb.append(reg.getPrintName());

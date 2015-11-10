@@ -240,6 +240,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private void startSettingsActivity() {
         final Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
@@ -472,7 +481,5 @@ public class MainActivity extends AppCompatActivity {
 
             viewPager.invalidate();
         }
-
     }
-
 }

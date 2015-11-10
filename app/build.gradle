@@ -4,6 +4,12 @@ android {
     compileSdkVersion 22
     buildToolsVersion "23.0.1"
 
+    buildTypes {
+        release {
+            shrinkResources true
+        }
+    }
+
     defaultConfig {
         applicationId "aks.geotrends.android"
         minSdkVersion 16
