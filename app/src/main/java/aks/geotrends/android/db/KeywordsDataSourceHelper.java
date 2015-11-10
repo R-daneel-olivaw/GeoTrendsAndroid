@@ -17,6 +17,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class KeywordsDataSourceHelper {
 
@@ -94,7 +96,7 @@ public class KeywordsDataSourceHelper {
 
         List<String> strList = new ArrayList<>();
 
-        for (Keyword k: oldKeywordsList) {
+        for (Keyword k : oldKeywordsList) {
             strList.add(k.getKeyword());
         }
 
@@ -183,5 +185,18 @@ public class KeywordsDataSourceHelper {
         }
 
         return keywords;
+    }
+
+    public void cleanUpOldRegions(ArrayList<Integer> displayedRegionCodes) {
+
+        List<String> displayedRegions = new ArrayList<>();
+        for (Integer regCode : displayedRegionCodes) {
+            final RegionsEnum region = RegionsEnum.getRegionForCode(regCode);
+            displayedRegions.add("'" + region.getRegion() + "'");
+        }
+
+        String selection = KeywordsSQLiteHelper.COLUMN_REGION + " NOT IN (" + TextUtils.join(", ", displayedRegions) + ")";
+        Log.d("cleanup", selection);
+        database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, selection, null);
     }
 }

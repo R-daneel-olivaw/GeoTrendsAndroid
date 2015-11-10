@@ -237,7 +237,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (isVewPagerRefreshNeeded) {
             populateViewPagerFragments();
+            cleanUpDatabase();
         }
+    }
+
+    private void cleanUpDatabase() {
+
+        List<RegionsEnum> displayedRegions = SharedPreferenceHelper.fetchDisplayedRegionsFromSharedPrefrences(this);
+        ArrayList<Integer> displayedRegionIntegerCodes = new ArrayList<>();
+
+        for (RegionsEnum region:displayedRegions) {
+            displayedRegionIntegerCodes.add(region.getCode());
+        }
+
+        Intent serviceIntent = new Intent("aks.geotrends.android.action.cleanup");
+        serviceIntent.putIntegerArrayListExtra("aks.geotrends.android.extra.regions", displayedRegionIntegerCodes);
+
+        startService(serviceIntent);
     }
 
     @Override

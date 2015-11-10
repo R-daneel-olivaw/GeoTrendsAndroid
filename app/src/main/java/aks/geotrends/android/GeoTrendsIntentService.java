@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ public class GeoTrendsIntentService extends IntentService {
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE = "aks.geotrends.android.action.query.visible";
     private static final String AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION = "aks.geotrends.android.action.query.region";
+    private static final String ACTION_AKS_GEOTRENDS_ANDROID_ACTION_CLEANUP = "aks.geotrends.android.action.cleanup";
 
     private static final String REGION = "aks.geotrends.android.extra.region";
     private static final int PI_REQ_CODE = 55;
@@ -78,13 +80,41 @@ public class GeoTrendsIntentService extends IntentService {
         Log.d("geotrends_intentservice", "received intent");
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE.equals(action)) {
-                handleActionQueryVisible();
-            } else if (AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION.equals(action)) {
-                final int regionCode = intent.getIntExtra(REGION, -1);
-                handleActionQueryRegion(regionCode);
+
+            switch (action) {
+                case ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE: {
+                    handleActionQueryVisible();
+                    break;
+                }
+                case AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION: {
+                    final int regionCode = intent.getIntExtra(REGION, -1);
+                    handleActionQueryRegion(regionCode);
+                    break;
+                }
+                case ACTION_AKS_GEOTRENDS_ANDROID_ACTION_CLEANUP:
+                    final ArrayList<Integer> displayedRegionCodes = intent.getIntegerArrayListExtra("aks.geotrends.android.extra.regions");
+                    handleCleanupIntent(displayedRegionCodes);
+                    break;
             }
         }
+    }
+
+    private void handleCleanupIntent(final ArrayList<Integer> displayedRegionCodes) {
+
+        Log.d("geotrends_intentservice", "clean up");
+
+        final Thread workerThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                KeywordsDataSourceHelper helper = new KeywordsDataSourceHelper(getApplicationContext());
+                helper.open();
+                helper.cleanUpOldRegions(displayedRegionCodes);
+                helper.close();
+            }
+        });
+
+        workerThread.start();
     }
 
     /**
@@ -94,17 +124,17 @@ public class GeoTrendsIntentService extends IntentService {
     private void handleActionQueryVisible() {
         Log.d("geotrends_intentservice", "refresh all visible...");
 
-        SettingsDatasourceHelper sdh = new SettingsDatasourceHelper(this);
-        sdh.open();
-        final List<RegionsEnum> visibleRegions = sdh.getVisibleRegions();
-        sdh.close();
-
         final Thread workerThread = new Thread(new Runnable() {
 
             final Map<RegionsEnum, List<String>> keywordChanges = new HashMap<>();
 
             @Override
             public void run() {
+
+                SettingsDatasourceHelper sdh = new SettingsDatasourceHelper(GeoTrendsIntentService.this);
+                sdh.open();
+                final List<RegionsEnum> visibleRegions = sdh.getVisibleRegions();
+                sdh.close();
 
                 for (RegionsEnum reg : visibleRegions) {
                     final List<String> regKeywordsChanges = regionalRefresh(reg.getCode());
@@ -118,8 +148,6 @@ public class GeoTrendsIntentService extends IntentService {
             }
         });
         workerThread.start();
-
-        System.out.println(visibleRegions);
     }
 
     private void sendNotification(Map<RegionsEnum, List<String>> keywordChanges) {
@@ -153,8 +181,7 @@ public class GeoTrendsIntentService extends IntentService {
             }
 
             final Uri ringtoneUri = SharedPreferenceHelper.getRingtone(this);
-            if(null!=ringtoneUri)
-            {
+            if (null != ringtoneUri) {
                 mBuilder.setSound(ringtoneUri);
             }
 

@@ -41,6 +41,7 @@
             <intent-filter>
                 <action android:name="aks.geotrends.android.action.query.visible" />
                 <action android:name="aks.geotrends.android.action.query.region" />
+                <action android:name="aks.geotrends.android.action.cleanup" />
             </intent-filter>
         </service>
 
