@@ -53,6 +53,7 @@ public class KeywordsDataSourceHelper {
         values.put(KeywordsSQLiteHelper.COLUMN_REGION, regionShort);
         values.put(KeywordsSQLiteHelper.COLUMN_ADDED_DATE, dateAdded);
 
+        checkDatabase();
         long insertId = database.insert(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, null, values);
         Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
                 KeywordsSQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
@@ -105,7 +106,7 @@ public class KeywordsDataSourceHelper {
 
     private void deleteAllKeywordsForRegion(String regionShort) {
 
-
+        checkDatabase();
         database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS,
                 KeywordsSQLiteHelper.COLUMN_REGION + " = '" + regionShort + "'", null);
 
@@ -123,6 +124,7 @@ public class KeywordsDataSourceHelper {
 
         String regionShort = region.getRegion();
 
+        checkDatabase();
         Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONS, REGIONS_ALL_COLUMNS,
                 KeywordsSQLiteHelper.COLUMN_REGION_SHORT + " = '" + regionShort + "'", null, null, null, null);
 
@@ -145,10 +147,20 @@ public class KeywordsDataSourceHelper {
 
     public Cursor getKeywordsCursor(RegionsEnum region) {
 
+        checkDatabase();
+
         Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
                 KeywordsSQLiteHelper.COLUMN_REGION + " = '" + region.getRegion() + "'", null, null, null, null);
 
         return cursor;
+    }
+
+    private void checkDatabase() {
+
+        if(null==database)
+        {
+            open();
+        }
     }
 
     public List<Keyword> getKeywordsList(RegionsEnum reg) {
@@ -197,6 +209,7 @@ public class KeywordsDataSourceHelper {
 
         String selection = KeywordsSQLiteHelper.COLUMN_REGION + " NOT IN (" + TextUtils.join(", ", displayedRegions) + ")";
         Log.d("cleanup", selection);
+        checkDatabase();
         database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, selection, null);
     }
 }

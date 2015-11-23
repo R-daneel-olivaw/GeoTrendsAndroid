@@ -197,17 +197,32 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void populateRecyclerView() {
 
-        keywordsHelper.open();
-        Cursor c = getDataCursor();
+        final Thread keyWordQueryThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        if (c.getCount() == 0) {
-            startDelayedRefresh();
-        }
+                keywordsHelper.open();
+                Cursor c = getDataCursor();
 
-        List<Keyword> keywords = getKeywordsFromCursor(c);
+                if (c.getCount() == 0) {
+                    startDelayedRefresh();
+                }
 
-        keywordsHelper.close();
-        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener, graphClickListener));
+                final List<Keyword> keywords = getKeywordsFromCursor(c);
+                final Runnable uiRefresh = new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.setAdapter(new KeywordsRecyclerAdapter(keywords, clickListener, graphClickListener));
+                    }
+                };
+
+                activity.runOnUiThread(uiRefresh);
+
+                keywordsHelper.close();
+            }
+        });
+
+        keyWordQueryThread.start();
     }
 
     @Override
@@ -271,6 +286,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
     }
 
     private Cursor getDataCursor() {
+
 
         Cursor c = keywordsHelper.getKeywordsCursor(region);
 
