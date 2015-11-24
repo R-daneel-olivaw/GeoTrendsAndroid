@@ -66,6 +66,11 @@ public class KeywordsRecyclerAdapter extends RecyclerView.Adapter<KeywordsRecycl
         DateTime now = DateTime.now();
         DateTime added = new DateTime(keyword.getSortingDate());
 
+        if(added.isAfterNow())
+        {
+            added = now;
+        }
+
         Interval keywordAge = new Interval(added, now);
         Period period = keywordAge.toPeriod();
 

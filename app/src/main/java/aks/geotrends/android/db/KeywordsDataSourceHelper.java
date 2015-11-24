@@ -48,47 +48,56 @@ public class KeywordsDataSourceHelper {
     }
 
     public Keyword createKeyword(String keyword, String regionShort, String dateAdded) {
-        ContentValues values = new ContentValues();
-        values.put(KeywordsSQLiteHelper.COLUMN_KEYWORD, keyword);
-        values.put(KeywordsSQLiteHelper.COLUMN_REGION, regionShort);
-        values.put(KeywordsSQLiteHelper.COLUMN_ADDED_DATE, dateAdded);
 
-        checkDatabase();
-        long insertId = database.insert(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, null, values);
-        Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
-                KeywordsSQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
-        cursor.moveToFirst();
-        Keyword newKeyword = cursorToKeyword(cursor);
-        cursor.close();
+        Keyword newKeyword = null;
+        synchronized (KeywordsDataSourceHelper.class) {
+
+            ContentValues values = new ContentValues();
+            values.put(KeywordsSQLiteHelper.COLUMN_KEYWORD, keyword);
+            values.put(KeywordsSQLiteHelper.COLUMN_REGION, regionShort);
+            values.put(KeywordsSQLiteHelper.COLUMN_ADDED_DATE, dateAdded);
+
+            checkDatabase();
+            long insertId = database.insert(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, null, values);
+            Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
+                    KeywordsSQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
+            cursor.moveToFirst();
+            newKeyword = cursorToKeyword(cursor);
+            cursor.close();
+        }
 
         return newKeyword;
     }
 
     public List<String> saveOrUpdateKeywords(JsonRegionalTrending regionalTrending) {
-        String regionShort = regionalTrending.getRegion().getRegion();
 
-        final List<Keyword> oldKeywordsList = getKeywordsList(RegionsEnum.getRegionByShortCode(regionShort));
-        deleteAllKeywordsForRegion(regionShort);
+        List<String> newKeywordsListStr = null;
+        synchronized (KeywordsDataSourceHelper.class) {
+            String regionShort = regionalTrending.getRegion().getRegion();
 
-        List<JsonKeyword> trendingKeywords = regionalTrending.getTrending();
+            final List<Keyword> oldKeywordsList = getKeywordsList(RegionsEnum.getRegionByShortCode(regionShort));
+            deleteAllKeywordsForRegion(regionShort);
 
-        final List<Keyword> newKeywordsList = new ArrayList<>();
-        // save or update keywords one by one
-        for (JsonKeyword jsonKeyword : trendingKeywords) {
+            List<JsonKeyword> trendingKeywords = regionalTrending.getTrending();
 
-            String iso8601Date = formatter.format(jsonKeyword.getAddedDate());
-            final Keyword keyword = createKeyword(jsonKeyword.getKeyword(), regionShort, iso8601Date);
-            newKeywordsList.add(keyword);
+            final List<Keyword> newKeywordsList = new ArrayList<>();
+            // save or update keywords one by one
+            for (JsonKeyword jsonKeyword : trendingKeywords) {
+
+                String iso8601Date = formatter.format(jsonKeyword.getAddedDate());
+                final Keyword keyword = createKeyword(jsonKeyword.getKeyword(), regionShort, iso8601Date);
+                newKeywordsList.add(keyword);
+            }
+
+            List<String> oldKeywordsStr = convertToStringList(oldKeywordsList);
+            newKeywordsListStr = convertToStringList(newKeywordsList);
+
+            newKeywordsListStr.removeAll(oldKeywordsStr);
+
+            // notify content observers
+            Uri uri = Uri.parse(KEYWORDS_TABLE_URI);
+            context.getContentResolver().notifyChange(uri, null);
         }
-
-        List<String> oldKeywordsStr = convertToStringList(oldKeywordsList);
-        List<String> newKeywordsListStr = convertToStringList(newKeywordsList);
-
-        newKeywordsListStr.removeAll(oldKeywordsStr);
-
-        // notify content observers
-        Uri uri = Uri.parse(KEYWORDS_TABLE_URI);
-        context.getContentResolver().notifyChange(uri, null);
 
         return newKeywordsListStr;
     }
@@ -121,38 +130,40 @@ public class KeywordsDataSourceHelper {
     }
 
     public void saveRegion(JsonRegion region) {
+        synchronized (KeywordsDataSourceHelper.class) {
+            String regionShort = region.getRegion();
 
-        String regionShort = region.getRegion();
+            checkDatabase();
+            Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONS, REGIONS_ALL_COLUMNS,
+                    KeywordsSQLiteHelper.COLUMN_REGION_SHORT + " = '" + regionShort + "'", null, null, null, null);
 
-        checkDatabase();
-        Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_REGIONS, REGIONS_ALL_COLUMNS,
-                KeywordsSQLiteHelper.COLUMN_REGION_SHORT + " = '" + regionShort + "'", null, null, null, null);
+            cursor.moveToFirst();
+            if (cursor.getCount() != 0) {
+                cursor.close();
+            } else {
+                cursor.close();
 
-        cursor.moveToFirst();
-        if (cursor.getCount() != 0) {
-            cursor.close();
-        } else {
-            cursor.close();
+                RegionsEnum regionObj = RegionsEnum.getRegionByShortCode(regionShort);
 
-            RegionsEnum regionObj = RegionsEnum.getRegionByShortCode(regionShort);
+                ContentValues values = new ContentValues();
+                values.put(KeywordsSQLiteHelper.COLUMN_REGION_SHORT, regionShort);
+                values.put(KeywordsSQLiteHelper.COLUMN_REGION, regionObj.getPrintName());
 
-            ContentValues values = new ContentValues();
-            values.put(KeywordsSQLiteHelper.COLUMN_REGION_SHORT, regionShort);
-            values.put(KeywordsSQLiteHelper.COLUMN_REGION, regionObj.getPrintName());
-
-            database.insert(KeywordsSQLiteHelper.TABLE_REGIONS, null, values);
+                database.insert(KeywordsSQLiteHelper.TABLE_REGIONS, null, values);
+            }
         }
-
     }
 
     public Cursor getKeywordsCursor(RegionsEnum region) {
+        Cursor cursor = null;
+        synchronized (KeywordsDataSourceHelper.class) {
+            checkDatabase();
 
-        checkDatabase();
-
-        Cursor cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
-                KeywordsSQLiteHelper.COLUMN_REGION + " = '" + region.getRegion() + "'", null, null, null, null);
-
+            cursor = database.query(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, KEYWORDS_ALL_COLUMNS,
+                    KeywordsSQLiteHelper.COLUMN_REGION + " = '" + region.getRegion() + "'", null, null, null, null);
+        }
         return cursor;
+
     }
 
     private void checkDatabase() {
@@ -201,15 +212,17 @@ public class KeywordsDataSourceHelper {
 
     public void cleanUpOldRegions(ArrayList<Integer> displayedRegionCodes) {
 
-        List<String> displayedRegions = new ArrayList<>();
-        for (Integer regCode : displayedRegionCodes) {
-            final RegionsEnum region = RegionsEnum.getRegionForCode(regCode);
-            displayedRegions.add("'" + region.getRegion() + "'");
-        }
+        synchronized (KeywordsDataSourceHelper.class) {
+            List<String> displayedRegions = new ArrayList<>();
+            for (Integer regCode : displayedRegionCodes) {
+                final RegionsEnum region = RegionsEnum.getRegionForCode(regCode);
+                displayedRegions.add("'" + region.getRegion() + "'");
+            }
 
-        String selection = KeywordsSQLiteHelper.COLUMN_REGION + " NOT IN (" + TextUtils.join(", ", displayedRegions) + ")";
-        Log.d("cleanup", selection);
-        checkDatabase();
-        database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, selection, null);
+            String selection = KeywordsSQLiteHelper.COLUMN_REGION + " NOT IN (" + TextUtils.join(", ", displayedRegions) + ")";
+            Log.d("cleanup", selection);
+            checkDatabase();
+            database.delete(KeywordsSQLiteHelper.TABLE_TRENDING_KEYWORDS, selection, null);
+        }
     }
 }

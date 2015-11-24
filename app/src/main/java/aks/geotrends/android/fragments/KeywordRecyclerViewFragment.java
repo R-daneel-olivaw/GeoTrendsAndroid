@@ -176,7 +176,6 @@ public class KeywordRecyclerViewFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        keywordsHelper = null;
     }
 
     public void startDelayedRefresh() {

@@ -21,6 +21,7 @@ import java.util.Set;
 import aks.geotrends.android.db.KeywordsDataSourceHelper;
 import aks.geotrends.android.db.SettingsDatasourceHelper;
 import aks.geotrends.android.json.JsonRegionalTrending;
+import aks.geotrends.android.utils.BackgroundScheduler;
 import aks.geotrends.android.utils.RegionsEnum;
 import aks.geotrends.android.utils.SharedPreferenceHelper;
 import aks.geotrends.android.utils.WebserviceHelper;
@@ -37,6 +38,7 @@ public class GeoTrendsIntentService extends IntentService {
     private static final String ACTION_AKS_GEOTRENDS_ANDROID_ACTION_QUERY_VISIBLE = "aks.geotrends.android.action.query.visible";
     private static final String AKS_GEOTRENDS_ANDROID_ACTION_QUERY_REGION = "aks.geotrends.android.action.query.region";
     private static final String ACTION_AKS_GEOTRENDS_ANDROID_ACTION_CLEANUP = "aks.geotrends.android.action.cleanup";
+    private static  final String BOOT_COMPLETE_INTENT  = "android.intent.action.BOOT_COMPLETED";
 
     private static final String REGION = "aks.geotrends.android.extra.region";
     private static final int PI_REQ_CODE = 55;
