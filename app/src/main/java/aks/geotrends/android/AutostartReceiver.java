@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import aks.geotrends.android.utils.BackgroundScheduler;
+import aks.geotrends.android.utils.SharedPreferenceHelper;
 
 public class AutostartReceiver extends BroadcastReceiver {
     public AutostartReceiver() {
@@ -13,7 +14,9 @@ public class AutostartReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        BackgroundScheduler.reScheduleSync(context);
-        Log.d("Power-On","Setting up intents");
+        if(SharedPreferenceHelper.isAutoSyncEnabled(context)) {
+            BackgroundScheduler.reScheduleSync(context);
+            Log.d("Power-On", "Setting up intents");
+        }
     }
 }
