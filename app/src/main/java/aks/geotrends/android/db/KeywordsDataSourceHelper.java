@@ -45,6 +45,7 @@ public class KeywordsDataSourceHelper {
 
     public void close() {
         dbHelper.close();
+        database = null;
     }
 
     public Keyword createKeyword(String keyword, String regionShort, String dateAdded) {

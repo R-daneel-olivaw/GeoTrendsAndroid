@@ -140,7 +140,7 @@ public class GeoTrendsIntentService extends IntentService {
 
                 for (RegionsEnum reg : visibleRegions) {
                     final List<String> regKeywordsChanges = regionalRefresh(reg.getCode());
-                    if (!regKeywordsChanges.isEmpty()) {
+                    if (null!= regKeywordsChanges && !regKeywordsChanges.isEmpty()) {
                         keywordChanges.put(reg, regKeywordsChanges);
                     }
                 }
