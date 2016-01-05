@@ -250,7 +250,8 @@ public class MainActivity extends AppCompatActivity {
             displayedRegionIntegerCodes.add(region.getCode());
         }
 
-        Intent serviceIntent = new Intent("aks.geotrends.android.action.cleanup");
+        Intent serviceIntent = new Intent(this,GeoTrendsIntentService.class);
+        serviceIntent.setAction("aks.geotrends.android.action.cleanup");
         serviceIntent.putIntegerArrayListExtra("aks.geotrends.android.extra.regions", displayedRegionIntegerCodes);
 
         startService(serviceIntent);

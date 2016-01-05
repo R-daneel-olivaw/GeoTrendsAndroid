@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import aks.geotrends.android.GeoTrendsIntentService;
 import aks.geotrends.android.KeywordsRecyclerAdapter;
 import aks.geotrends.android.MainActivity;
 import aks.geotrends.android.R;
@@ -156,7 +157,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
         regionSettingsHelper.open();
         final RegionalSettings regionalSettings = regionSettingsHelper.getSettingsForRegion(region);
-        regionSettingsHelper.close();
+//        regionSettingsHelper.close();
 
         final Date lastRefreshDate = regionalSettings.getRefreshDate();
 
@@ -217,7 +218,7 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
                 activity.runOnUiThread(uiRefresh);
 
-                keywordsHelper.close();
+//                keywordsHelper.close();
             }
         });
 
@@ -278,7 +279,8 @@ public class KeywordRecyclerViewFragment extends Fragment {
 
     private void refreshDatabase() {
 
-        Intent serviceIntent = new Intent("aks.geotrends.android.action.query.region");
+        Intent serviceIntent = new Intent(activity, GeoTrendsIntentService.class);
+        serviceIntent.setAction("aks.geotrends.android.action.query.region");
         serviceIntent.putExtra("aks.geotrends.android.extra.region", region.getCode());
         activity.startService(serviceIntent);
 
